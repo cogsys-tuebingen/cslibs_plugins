@@ -26,22 +26,18 @@ public:
 
         /// all in the launch file entered plugins have been retrieved now
         /// now we load the ones related to this ProviderManager
-        std::cerr << "factory started" << std::endl;
         static PluginFactory<plugin_t, arguments_t...> factory(package_name_);
-        std::cerr << "factory ended" << std::endl;
-        for(const auto &entry : plugins_found_) {
+        for (const auto &entry : plugins_found_) {
             const std::string &name = entry.first;
             const std::string &base_class_name = entry.second.base_class_name;
             const std::string &class_name = entry.second.class_name;
-            std::cerr << "[!] Found " << name << " - " << base_class_name << " - " << class_name << std::endl;
-            if(base_class_name == plugin_t::Type()) {
-                std::cerr << "[!] Executing " << class_name << std::endl;
+
+            if (base_class_name == plugin_t::Type()) {
                 plugins[name] = factory.create(class_name, name, arguments...);
-                if(!plugins[name]) {
+                if (!plugins[name]) {
                     std::cerr << "[PluginFactory]: Could not create plugin, empty constructor received!" << "\n";
                     plugins.erase(name);
                 }
-                std::cerr << "[!] Executed " << class_name << std::endl;
             }
         }
 
@@ -52,28 +48,23 @@ public:
     inline void load(typename plugin_t::Ptr &plugin,
                      const arguments_t&... arguments)
     {
-        std::cerr << "factory started" << std::endl;
         static PluginFactory<plugin_t, arguments_t ...> factory(package_name_);
-        std::cerr << "factory ended" << std::endl;
-        for(const auto &entry : plugins_found_) {
+        for (const auto &entry : plugins_found_) {
             const std::string &name = entry.first;
             const std::string &base_class_name = entry.second.base_class_name;
             const std::string &class_name = entry.second.class_name;
-            std::cerr << "[!] Found " << name << " - " << base_class_name << " - " << class_name << std::endl;
-            if(base_class_name == plugin_t::Type()) {
-                std::cerr << "[!] Executing " << class_name << std::endl;
+
+            if (base_class_name == plugin_t::Type())
                 plugin = factory.create(class_name, name, arguments...);
-                std::cerr << "[!] Executed " << class_name << std::endl;
-            }
         }
     }
 
     inline std::set<std::string> getFoundNames() const
     {
         std::set<std::string> found;
-        for(const auto &entry : plugins_found_) {
+        for (const auto &entry : plugins_found_)
             found.insert(entry.first);
-        }
+
         return found;
     }
 
@@ -98,13 +89,12 @@ private:
         nh_private_.getParamNames(params);
 
         boost::cmatch match;
-        for(const std::string &p : params) {
-            if(boost::regex_match(p.c_str(), match, class_regex)) {
+        for (const std::string &p : params) {
+            if (boost::regex_match(p.c_str(), match, class_regex))
                 nh_private_.getParam(p, plugins_found_[match[2]].class_name);
-            }
-            if(boost::regex_match(p.c_str(), match, base_class_regex)) {
+
+            if (boost::regex_match(p.c_str(), match, base_class_regex))
                 nh_private_.getParam(p, plugins_found_[match[2]].base_class_name);
-            }
         }
     }
 

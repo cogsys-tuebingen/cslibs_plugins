@@ -21,12 +21,14 @@ class PluginManagerImp
 
 protected:
     using PluginConstructorM = cslibs_utility::common::delegate<std::shared_ptr<M>()>;
-    using Constructors = std::map<std::string, PluginConstructorM>;
+    using Constructors       = std::map<std::string, PluginConstructorM>;
 
 protected:
     PluginManagerImp(const std::string& full_name,
-                     const std::string& package_name)
-        : plugins_loaded_(false), full_name_(full_name), loader_(package_name, full_name)
+                     const std::string& package_name) :
+        plugins_loaded_(false),
+        full_name_(full_name),
+        loader_(package_name, full_name)
     {
     }
 
@@ -42,9 +44,8 @@ protected:
     void load() {
         std::vector<std::string> xml_files = loader_.getPluginXmlPaths();
 
-        for(std::vector<std::string>::const_iterator manifest = xml_files.begin(); manifest != xml_files.end(); ++manifest) {
+        for (std::vector<std::string>::const_iterator manifest = xml_files.begin() ; manifest != xml_files.end() ; ++ manifest)
             processManifest(*manifest);
-        }
 
         plugins_loaded_ = true;
     }
@@ -54,23 +55,20 @@ protected:
         TiXmlDocument document;
         document.LoadFile(xml_file);
         TiXmlElement * config = document.RootElement();
-        if (config == nullptr) {
+        if (config == nullptr)
             return false;
-        }
-        if (config->ValueStr() != "library") {
+
+        if (config->ValueStr() != "library")
             return false;
-        }
 
         TiXmlElement* library = config;
         while (library != nullptr) {
 
             std::string library_name = library->Attribute("path");
-            if (library_name.size() == 0) {
+            if (library_name.size() == 0)
                 continue;
-            }
 
             loadLibrary(library_name, library);
-
             library = library->NextSiblingElement( "library" );
         }
 
@@ -85,7 +83,7 @@ protected:
             TiXmlElement* class_element = library->FirstChildElement("class");
             while (class_element) {
                 std::string base_class_type = class_element->Attribute("base_class_type");
-                if(base_class_type == full_name_) {
+                if (base_class_type == full_name_) {
                     load = true;
                     break;
                 }
@@ -93,16 +91,14 @@ protected:
             }
         }
 
-        if(!load) {
+        if (!load)
             return "";
-        }
 
         std::shared_ptr<class_loader::ClassLoader> loader(new class_loader::ClassLoader(library_path));
 
         TiXmlElement* class_element = library->FirstChildElement("class");
         while (class_element) {
             loadClass(library_name, class_element, loader.get());
-
             class_element = class_element->NextSiblingElement( "class" );
         }
         loaders_[library_name] = std::move(loader);
@@ -112,20 +108,16 @@ protected:
 
     void loadClass(const std::string& library_name, TiXmlElement* class_element, class_loader::ClassLoader* loader) {
         std::string base_class_type = class_element->Attribute("base_class_type");
-        std::string derived_class = class_element->Attribute("type");
+        std::string derived_class   = class_element->Attribute("type");
 
-        std::string lookup_name;
-        if(class_element->Attribute("name") != nullptr) {
-            lookup_name = class_element->Attribute("name");
-        } else {
-            lookup_name = derived_class;
-        }
+        std::string lookup_name = (class_element->Attribute("name") != nullptr) ?
+              class_element->Attribute("name") : derived_class;
 
-        if(base_class_type == full_name_){
+        if (base_class_type == full_name_){
             std::string description = readString(class_element, "description");
-            std::string icon = readString(class_element, "icon");
-            std::string tags = readString(class_element, "tags");
-std::cerr << "[!!]: " << description << ", " << icon << ", " << tags << "; " << lookup_name << std::endl;
+            std::string icon        = readString(class_element, "icon");
+            std::string tags        = readString(class_element, "tags");
+
             available_classes.emplace(lookup_name, [loader, lookup_name]() {
                  return std::shared_ptr<M> { loader->createUnmanagedInstance<M>(lookup_name) };
             });
@@ -133,11 +125,8 @@ std::cerr << "[!!]: " << description << ", " << icon << ", " << tags << "; " << 
     }
 
     std::string readString(TiXmlElement* class_element, const std::string& name) {
-        TiXmlElement* description = class_element->FirstChildElement(name);
-        std::string description_str;
-        if(description) {
-            description_str = description->GetText() ? description->GetText() : "";
-        }
+        TiXmlElement* description   = class_element->FirstChildElement(name);
+        std::string description_str = (description && description->GetText()) ? description->GetText() : "";
 
         return description_str;
     }
@@ -183,7 +172,7 @@ public:
                   const std::string& package_name)
     {
         std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
-        if(i_count == 0) {
+        if (i_count == 0) {
             ++i_count;
             instance = new Parent(full_name, package_name);
         }
@@ -193,9 +182,8 @@ public:
     {
         std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
         --i_count;
-        if(i_count == 0) {
+        if (i_count == 0)
             delete instance;
-        }
     }
 
     virtual bool pluginsLoaded() const {
@@ -205,18 +193,16 @@ public:
 
     virtual void load() {
         std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
-
         instance->load();
     }
 
     Constructor getConstructor(const std::string& name) {
         std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
         auto pos = instance->available_classes.find(name);
-        if(pos != instance->available_classes.end()) {
+        if (pos != instance->available_classes.end())
             return pos->second;
-        } else {
+        else
             return {};
-        }
     }
 
 protected:
