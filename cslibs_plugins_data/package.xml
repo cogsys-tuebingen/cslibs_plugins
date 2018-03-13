@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>cslibs_plugins_data</name>
+  <version>0.0.1</version>
+  <description>
+    The cslibs_plugins_data package contains plugins providing data.
+  </description>
+
+  <maintainer email="cornelia.schulz@uni-tuebingen.de">Cornelia Schulz</maintainer>
+  <author email="cornelia.schulz@uni-tuebingen.de">Cornelia Schulz</author>
+
+  <license>BSD</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>cslibs_plugins</depend>
+  <depend>cslibs_time</depend>
+  <depend>cslibs_utility</depend>
+  <depend>cslibs_math_ros</depend>
+  <depend>cslibs_math_2d</depend>
+  <depend>cslibs_math_3d</depend>
+  <depend>pluginlib</depend>
+  <depend>roscpp</depend>
+  <depend>rostest</depend>
+  <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>tf</depend>
+
+  <export>
+    <cslibs_plugins_data plugin="${prefix}/plugins.xml" />
+  </export>
+</package>
