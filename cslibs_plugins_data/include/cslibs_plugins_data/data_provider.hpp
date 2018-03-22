@@ -4,12 +4,15 @@
 #include <memory>
 #include <functional>
 
+#include <cslibs_plugins/plugin.hpp>
 #include <cslibs_plugins_data/data.hpp>
+
 #include <cslibs_utility/signals/signals.hpp>
 #include <cslibs_utility/common/delegate.hpp>
 
 namespace cslibs_plugins_data {
-class DataProvider {
+class DataProvider : public cslibs_plugins::Plugin
+{
 public:
     using Ptr          = std::shared_ptr<DataProvider>;
     using callback_t   = cslibs_utility::common::delegate<void(const Data::ConstPtr&)>;
@@ -22,26 +25,6 @@ public:
     inline const static std::string Type()
     {
         return "cslibs_plugins_data::DataProvider";
-    }
-
-    inline std::string getName() const
-    {
-        return name_;
-    }
-
-    void setName(const std::string &name)
-    {
-        name_ = name;
-    }
-
-    inline std::size_t getId() const
-    {
-        return id_;
-    }
-
-    inline void setId(const std::size_t id)
-    {
-        id_ = id;
     }
 
      /**
@@ -72,9 +55,7 @@ public:
     }
 
 protected:
-    std::size_t       id_;
-    std::string       name_;
-    signal_t          data_received_;
+    signal_t data_received_;
 };
 }
 

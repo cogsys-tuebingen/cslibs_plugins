@@ -6,7 +6,8 @@
 #include <assert.h>
 
 namespace cslibs_plugins_data {
-class Data {
+class Data
+{
 public:
     typedef std::shared_ptr<Data> Ptr;
     typedef std::shared_ptr<const Data> ConstPtr;
