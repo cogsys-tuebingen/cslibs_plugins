@@ -97,7 +97,6 @@ private:
                 nh_private_.getParam(p, plugins_found_[match[2]].base_class_name);
         }
     }
-
 };
 }
 
