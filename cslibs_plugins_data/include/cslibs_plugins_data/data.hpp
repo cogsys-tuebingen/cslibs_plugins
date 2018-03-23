@@ -9,8 +9,8 @@ namespace cslibs_plugins_data {
 class Data
 {
 public:
-    typedef std::shared_ptr<Data> Ptr;
-    typedef std::shared_ptr<const Data> ConstPtr;
+    using Ptr      = std::shared_ptr<Data>;
+    using ConstPtr = std::shared_ptr<const Data>;
 
     Data(const std::string &_frame) :
         frame_(_frame)
