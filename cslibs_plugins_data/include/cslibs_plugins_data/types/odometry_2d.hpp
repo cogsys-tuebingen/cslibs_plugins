@@ -47,7 +47,7 @@ public:
       end_pose_(start),
       delta_rel_(cslibs_math_2d::Transform2d::identity())
     {
-        delta_rel_      = start.inverse() * end;
+        delta_rel_      = end * start.inverse();
         start_pose_     = start;
         end_pose_       = end;
 
