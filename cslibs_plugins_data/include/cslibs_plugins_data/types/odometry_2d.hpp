@@ -102,6 +102,7 @@ public:
 private:
     cslibs_math_2d::Pose2d    start_pose_;
     cslibs_math_2d::Pose2d    end_pose_;
+    cslibs_math_2d::Vector2d  delta_lin_abs_;
     double                    delta_linear_;
     double                    delta_angular_;
 }__attribute__ ((aligned (256)));
