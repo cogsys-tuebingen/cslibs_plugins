@@ -47,6 +47,12 @@ public:
         delta_lin_abs_  = end.translation() - start.translation();
         delta_linear_   = delta_lin_abs_.length();
         delta_angular_  = cslibs_math::common::angle::difference(end.yaw(), start.yaw());
+        forward_ = (end * start.inverse()).tx()  > 0;
+    }
+
+    inline bool forward() const
+    {
+        return forward_;
     }
 
     inline double getDeltaAngularAbs() const
@@ -102,6 +108,7 @@ private:
     cslibs_math_2d::Vector2d  delta_lin_abs_;
     double                    delta_linear_;
     double                    delta_angular_;
+    bool                      forward_;
 }__attribute__ ((aligned (256)));
 }
 
