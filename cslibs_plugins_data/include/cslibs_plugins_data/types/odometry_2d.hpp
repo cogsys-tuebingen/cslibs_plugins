@@ -42,11 +42,8 @@ public:
                const time_t                 &time_received) :
       Data(frame, time_frame, time_received),
       start_pose_(start),
-      end_pose_(start)
+      end_pose_(end)
     {
-        start_pose_     = start;
-        end_pose_       = end;
-
         delta_lin_abs_  = end.translation() - start.translation();
         delta_linear_   = delta_lin_abs_.length();
         delta_angular_  = cslibs_math::common::angle::difference(end.yaw(), start.yaw());
@@ -73,12 +70,12 @@ public:
         return delta_lin_abs_;
     }
 
-    const inline double getDeltaLinear() const
+    inline double getDeltaLinear() const
     {
         return delta_linear_;
     }
 
-    const inline double getDeltaAngular() const
+    inline double getDeltaAngular() const
     {
         return delta_angular_;
     }
