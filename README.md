@@ -49,7 +49,7 @@ Multiple plugins of same type can be loaded concurrently by loading the plugins 
 
 ### Examples
 An exemplary abstract plugin definition can be found in [cslibs\_plugins\_data](cslibs_plugins_data/include/cslibs_plugins_data/data_provider_2d.hpp).<br>
-he plugins themselves can be found in the [src](cslibs_plugins_data/src/) folder.<br>
+The plugins themselves can be found in the [src](cslibs_plugins_data/src/) folder.<br>
 Loading and usage of plugins of this type can be found in [muse\_mcl\_2d](https://github.com/cogsys-tuebingen/muse_mcl_2d/blob/c718bdf4ef9a2c308ce53549c18531664da4b818/muse_mcl_2d/src/node/muse_mcl_2d_node.cpp#L150).
 
 ## Contributing
