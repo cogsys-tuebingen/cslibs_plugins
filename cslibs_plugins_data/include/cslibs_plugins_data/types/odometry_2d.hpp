@@ -20,7 +20,8 @@ public:
       start_pose_(cslibs_math_2d::Transform2d::identity()),
       end_pose_(cslibs_math_2d::Transform2d::identity()),
       delta_linear_(0.0),
-      delta_angular_(0.0)
+      delta_angular_(0.0),
+      forward_(true)
     {
     }
 
@@ -31,7 +32,8 @@ public:
       start_pose_(cslibs_math_2d::Transform2d::identity()),
       end_pose_(cslibs_math_2d::Transform2d::identity()),
       delta_linear_(0.0),
-      delta_angular_(0.0)
+      delta_angular_(0.0),
+      forward_(true)
     {
     }
 
@@ -42,11 +44,12 @@ public:
                const time_t                 &time_received) :
       Data(frame, time_frame, time_received),
       start_pose_(start),
-      end_pose_(end)
+      end_pose_(end),
+      delta_lin_abs_(end.translation() - start.translation()),
+      delta_linear_(delta_lin_abs_.length()),
+      delta_angular_(cslibs_math::common::angle::difference(end.yaw(), start.yaw())),
+      forward_((start.inverse() * end).tx() >= 0.0)
     {
-        delta_lin_abs_  = end.translation() - start.translation();
-        delta_linear_   = delta_lin_abs_.length();
-        delta_angular_  = cslibs_math::common::angle::difference(end.yaw(), start.yaw());
     }
 
     inline double getDeltaAngularAbs() const
@@ -80,6 +83,11 @@ public:
         return delta_angular_;
     }
 
+    inline bool forward() const
+    {
+        return forward_;
+    }
+
     inline bool split(const time_t         &split_time,
                       Odometry2D::ConstPtr &a,
                       Odometry2D::ConstPtr &b) const
@@ -102,6 +110,8 @@ private:
     cslibs_math_2d::Vector2d  delta_lin_abs_;
     double                    delta_linear_;
     double                    delta_angular_;
+    bool                      forward_;
+
 }__attribute__ ((aligned (256)));
 }
 
