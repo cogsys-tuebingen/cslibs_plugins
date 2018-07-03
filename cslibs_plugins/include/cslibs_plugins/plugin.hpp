@@ -7,7 +7,7 @@ class Plugin
 public:
     virtual inline ~Plugin() = default;
 
-    inline std::string getName() const
+    inline const std::string getName() const
     {
         return name_;
     }
