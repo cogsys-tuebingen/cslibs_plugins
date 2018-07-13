@@ -13,9 +13,19 @@ using interval_t = std::array<double, 2>;
 
 inline Laserscan::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
                              const interval_t                     &linear_interval,
-                             const interval_t                     &angular_interval)
+                             const interval_t                     &angular_interval,
+                             const bool                            enforce_stamp = false)
 {
     const ros::Time start_stamp = src->header.stamp;
+    if(enforce_stamp) {
+      const  Laserscan::time_frame_t time_frame(start_stamp.toNSec(), start_stamp.toNSec());
+      return Laserscan::Ptr (new Laserscan(src->header.frame_id,
+                                           time_frame,
+                                           linear_interval,
+                                           angular_interval,
+                                           cslibs_time::Time(ros::Time::now().toNSec())));
+    }
+
     ros::Duration   delta_stamp = ros::Duration(src->time_increment) * static_cast<double>(src->ranges.size());
     if (delta_stamp <= ros::Duration(0.0))
         delta_stamp = ros::Duration(src->scan_time);
@@ -39,7 +49,8 @@ inline Laserscan::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
 inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
                     const interval_t                     &linear_interval,
                     const interval_t                     &angular_interval,
-                    Laserscan::Ptr                       &dst)
+                    Laserscan::Ptr                       &dst,
+                    const bool                            enforce_stamp)
 {
     const auto src_linear_min  = static_cast<double>(src->range_min);
     const auto src_linear_max  = static_cast<double>(src->range_max);
@@ -56,7 +67,7 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
     const interval_t dst_angular_interval = { std::max(angular_interval[0], src_angular_min),
                                               std::min(angular_interval[1], src_angular_max) };
 
-    dst = create(src, dst_linear_interval, dst_angular_interval);
+    dst = create(src, dst_linear_interval, dst_angular_interval, enforce_stamp);
 
     auto in_linear_interval = [&dst_linear_interval](const double range) {
         return range >= dst_linear_interval[0] && range <= dst_linear_interval[1];

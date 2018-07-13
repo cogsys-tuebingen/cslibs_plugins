@@ -20,6 +20,7 @@ protected:
     ros::Subscriber source_;                    /// the subscriber to be used
     std::string     topic_;                     /// topic to listen to
 
+    bool            enforce_stamp_;             /// Enforce that start_time = stamp = end_time
     bool            undistortion_;              /// check if undistortion shall be applied
     std::string     undistortion_fixed_frame_;  /// the fixed frame necessary for the undistortion
     ros::Duration   undistortion_tf_timeout_;   /// time out for the tf listener

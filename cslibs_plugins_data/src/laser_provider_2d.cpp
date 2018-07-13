@@ -22,10 +22,10 @@ void LaserProvider2D::callback(const sensor_msgs::LaserScanConstPtr &msg)
     if (undistortion_ &&
         !convertUndistorted(msg, linear_interval_, angular_interval_, tf_,
                             undistortion_fixed_frame_, undistortion_tf_timeout_, laserscan)) {
-        if (convert(msg, linear_interval_, angular_interval_, laserscan))
+        if (convert(msg, linear_interval_, angular_interval_, laserscan, enforce_stamp_))
            data_received_(laserscan);
 
-    } else if (convert(msg, linear_interval_, angular_interval_, laserscan))
+    } else if (convert(msg, linear_interval_, angular_interval_, laserscan, enforce_stamp_))
       data_received_(laserscan);
 
     time_of_last_measurement_ = msg->header.stamp;
@@ -38,7 +38,9 @@ void LaserProvider2D::doSetup(ros::NodeHandle &nh)
     int queue_size              = nh.param<int>(param_name("queue_size"), 1);
     topic_                      = nh.param<std::string>(param_name("topic"), "/scan");
     source_                     = nh.subscribe(topic_, queue_size, &LaserProvider2D::callback, this);
-    undistortion_               = nh.param<bool>(param_name("undistortion"), true);
+
+    enforce_stamp_              = nh.param<bool>(param_name("enforce_stamp"), true);
+    undistortion_               = nh.param<bool>(param_name("undistortion"), false);
     undistortion_fixed_frame_   = nh.param<std::string>(param_name("undistortion_fixed_frame"), "");
     undistortion_tf_timeout_    = ros::Duration(nh.param(param_name("undistotion_tf_timeout"), 0.1));
 
