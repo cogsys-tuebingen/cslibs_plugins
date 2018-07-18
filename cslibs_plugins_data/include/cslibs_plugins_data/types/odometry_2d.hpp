@@ -15,6 +15,9 @@ public:
     using time_frame_t = cslibs_time::TimeFrame;
     using time_t       = cslibs_time::Time;
 
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    using allocator_t = Eigen::aligned_allocator<Odometry2D>;
+
     Odometry2D(const std::string &frame) :
       Data(frame),
       start_pose_(cslibs_math_2d::Transform2d::identity()),
@@ -112,7 +115,7 @@ private:
     double                    delta_angular_;
     bool                      forward_;
 
-}__attribute__ ((aligned (256)));
+};
 }
 
 inline std::ostream & operator << (std::ostream &out, const cslibs_plugins_data::types::Odometry2D &odom)

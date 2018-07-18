@@ -19,6 +19,9 @@ public:
     using interval_t    = std::array<double, 2>;
 
     struct Ray {
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        using allocator_t = Eigen::aligned_allocator<Ray>;
+
         const double  angle;
         const double  range;
         const point_t point;
@@ -68,7 +71,7 @@ public:
     };
 
     using Ptr              = std::shared_ptr<Laserscan>;
-    using rays_t           = std::vector<Ray>;
+    using rays_t           = std::vector<Ray, Ray::allocator_t>;
     using const_iterator_t = rays_t::const_iterator;
 
     Laserscan(const std::string          &frame,
