@@ -91,20 +91,43 @@ public:
         return forward_;
     }
 
+    inline Odometry2D::ConstPtr cutFront(const time_t &split_time) const
+    {
+        Odometry2D::ConstPtr a;
+        Odometry2D::ConstPtr b;
+        split(split_time, a, b);
+        return b;
+    }
+
+    inline Odometry2D::ConstPtr cutBack(const time_t &split_time) const
+    {
+      Odometry2D::ConstPtr a;
+      Odometry2D::ConstPtr b;
+      split(split_time, a, b);
+      return b;
+    }
+
     inline bool split(const time_t         &split_time,
                       Odometry2D::ConstPtr &a,
                       Odometry2D::ConstPtr &b) const
     {
-        if (!time_frame_.within(split_time))
-            return false;
+        auto do_not_split = []() {
+          return false;
+        };
 
-        const double ratio = (split_time - time_frame_.start).seconds() / time_frame_.duration().seconds();
+        auto do_split = [&split_time, &a, &b, this] ()
+        {
 
-        cslibs_math_2d::Pose2d split_pose = start_pose_.interpolate(end_pose_, ratio);
-        a.reset(new Odometry2D(frame_, time_frame_t(time_frame_.start, split_time), start_pose_, split_pose, time_received_));
-        b.reset(new Odometry2D(frame_, time_frame_t(split_time, time_frame_.end), split_pose, end_pose_, time_received_ + (split_time - time_frame_.start)));
+          const double ratio = (split_time - time_frame_.start).seconds() / time_frame_.duration().seconds();
 
-        return true;
+          cslibs_math_2d::Pose2d split_pose = start_pose_.interpolate(end_pose_, ratio);
+          a.reset(new Odometry2D(frame_, time_frame_t(time_frame_.start, split_time), start_pose_, split_pose, time_received_));
+          b.reset(new Odometry2D(frame_, time_frame_t(split_time, time_frame_.end), split_pose, end_pose_, time_received_ + (split_time - time_frame_.start)));
+
+          return true;
+        };
+
+        return time_frame_.within(split_time) ? do_split() : do_not_split();
     }
 
 private:
@@ -115,7 +138,7 @@ private:
     double                    delta_angular_;
     bool                      forward_;
 
-};
+}__attribute__ ((aligned (16)));
 }
 
 inline std::ostream & operator << (std::ostream &out, const cslibs_plugins_data::types::Odometry2D &odom)
