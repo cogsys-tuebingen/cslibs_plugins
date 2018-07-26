@@ -138,7 +138,7 @@ private:
     double                    delta_angular_;
     bool                      forward_;
 
-};
+}__attribute__ ((aligned (16)));
 }
 
 inline std::ostream & operator << (std::ostream &out, const cslibs_plugins_data::types::Odometry2D &odom)

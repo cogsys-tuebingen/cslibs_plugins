@@ -173,7 +173,7 @@ private:
     rays_t     rays_;         /// only valid rays shall be contained here
     interval_t linear_interval_;
     interval_t angular_interval_;
-};
+}__attribute__ ((aligned (16)));
 }
 }
 
