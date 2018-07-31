@@ -17,7 +17,7 @@ inline Laserscan::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
                              const bool                            enforce_stamp = false)
 {
     const ros::Time start_stamp = src->header.stamp;
-    if(enforce_stamp) {
+    if (enforce_stamp) {
       const  Laserscan::time_frame_t time_frame(start_stamp.toNSec(), start_stamp.toNSec());
       return Laserscan::Ptr (new Laserscan(src->header.frame_id,
                                            time_frame,
@@ -26,16 +26,12 @@ inline Laserscan::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
                                            cslibs_time::Time(ros::Time::now().toNSec())));
     }
 
-    ros::Duration   delta_stamp = ros::Duration(src->time_increment) * static_cast<double>(src->ranges.size());
+    ros::Duration delta_stamp = ros::Duration(src->time_increment) * static_cast<double>(src->ranges.size());
     if (delta_stamp <= ros::Duration(0.0))
         delta_stamp = ros::Duration(src->scan_time);
 
-    const double fov             = src->angle_max - src->angle_min;
-    const double start_off_ratio = (std::max(static_cast<double>(src->angle_min), angular_interval[0]) - src->angle_min) / fov;
-    const double end_off_ratio   = (std::min(static_cast<double>(src->angle_max), angular_interval[1]) - src->angle_min) / fov;
-
-    const int64_t start_time = static_cast<int64_t>(std::floor(start_stamp.toNSec() + delta_stamp.toNSec() * start_off_ratio + 0.5));
-    const int64_t end_time   = static_cast<int64_t>(std::floor(start_stamp.toNSec() + delta_stamp.toNSec() * end_off_ratio  + 0.5));
+    const int64_t start_time = start_stamp.toNSec();
+    const int64_t end_time   = start_time + delta_stamp.toNSec();
 
     const  Laserscan::time_frame_t time_frame(start_time, end_time);
     return Laserscan::Ptr (new Laserscan(src->header.frame_id,
@@ -47,8 +43,6 @@ inline Laserscan::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
 
 
 inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
-                    const interval_t                     &linear_interval,
-                    const interval_t                     &angular_interval,
                     Laserscan::Ptr                       &dst,
                     const bool                            enforce_stamp)
 {
@@ -62,11 +56,8 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
     if (src_ranges.size() == 0ul)
         return false;
 
-    const interval_t dst_linear_interval  = { std::max(linear_interval[0],  src_linear_min),
-                                              std::min(linear_interval[1],  src_linear_max) };
-    const interval_t dst_angular_interval = { std::max(angular_interval[0], src_angular_min),
-                                              std::min(angular_interval[1], src_angular_max) };
-
+    const interval_t dst_linear_interval  = { src_linear_min,  src_linear_max };
+    const interval_t dst_angular_interval = { src_angular_min, src_angular_max };
     dst = create(src, dst_linear_interval, dst_angular_interval, enforce_stamp);
 
     auto in_linear_interval = [&dst_linear_interval](const double range) {
@@ -89,8 +80,6 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
 }
 
 inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
-                               const interval_t                         &linear_interval,
-                               const interval_t                         &angular_interval,
                                cslibs_math_ros::tf::TFListener2d::Ptr   &tf_listener,
                                const std::string                        &fixed_frame,
                                const ros::Duration                      &tf_timeout,
@@ -106,11 +95,8 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
     if (src_ranges.size() == 0ul)
         return false;
 
-    const interval_t dst_linear_interval  = { std::max(linear_interval[0],  src_linear_min),
-                                              std::min(linear_interval[1],  src_linear_max) };
-    const interval_t dst_angular_interval = { std::max(angular_interval[0], src_angular_min),
-                                              std::min(angular_interval[1], src_angular_max) };
-
+    const interval_t dst_linear_interval  = { src_linear_min,  src_linear_max };
+    const interval_t dst_angular_interval = { src_angular_min, src_angular_max };
     dst = create(src, dst_linear_interval, dst_angular_interval);
 
     auto in_linear_interval = [&dst_linear_interval](const double range) {
@@ -119,7 +105,6 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
     auto in_angular_interval = [&dst_angular_interval](const double angle) {
         return angle >= dst_angular_interval[0] && angle <= dst_angular_interval[1];
     };
-
 
     const ros::Time start_stamp = src->header.stamp;
     ros::Duration   delta_stamp = ros::Duration(src->time_increment);
@@ -132,7 +117,7 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
     if (!tf_listener->lookupTransform(fixed_frame, dst->getFrame(), end_stamp, start_T_end, tf_timeout))
         return false;
 
-    if(!tf_listener->waitForTransform(fixed_frame, dst->getFrame(), start_stamp, tf_timeout))
+    if (!tf_listener->waitForTransform(fixed_frame, dst->getFrame(), start_stamp, tf_timeout))
         return false;
 
     tf::Transform end_T_start = start_T_end.inverse();
