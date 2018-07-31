@@ -23,22 +23,24 @@ inline Laserscan::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
                                            time_frame,
                                            linear_interval,
                                            angular_interval,
-                                           cslibs_time::Time(ros::Time::now().toNSec())));
+                                           cslibs_time::Time(std::max(start_stamp.toNSec(),
+                                                                      ros::Time::now().toNSec()))));
     }
 
     ros::Duration delta_stamp = ros::Duration(src->time_increment) * static_cast<double>(src->ranges.size());
     if (delta_stamp <= ros::Duration(0.0))
         delta_stamp = ros::Duration(src->scan_time);
 
-    const int64_t start_time = start_stamp.toNSec();
-    const int64_t end_time   = start_time + delta_stamp.toNSec();
+    const uint64_t start_time = start_stamp.toNSec();
+    const uint64_t end_time   = start_time + delta_stamp.toNSec();
 
     const  Laserscan::time_frame_t time_frame(start_time, end_time);
     return Laserscan::Ptr (new Laserscan(src->header.frame_id,
                                          time_frame,
                                          linear_interval,
                                          angular_interval,
-                                         cslibs_time::Time(ros::Time::now().toNSec())));
+                                         cslibs_time::Time(std::max(end_time,
+                                                                    ros::Time::now().toNSec()))));
 }
 
 

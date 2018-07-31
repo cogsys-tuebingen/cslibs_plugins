@@ -17,10 +17,9 @@ public:
     Pointcloud(const sensor_msgs::PointCloud2ConstPtr &msg) :
         Data(msg->header.frame_id,
              cslibs_math_ros::sensor_msgs::conversion_3d::from(msg),
-             cslibs_time::Time(ros::Time::now().toNSec()))
+             cslibs_time::Time(std::max(msg->header.stamp.toNSec(), ros::Time::now().toNSec())))
     {
         cslibs_math_ros::sensor_msgs::conversion_3d::from(msg, points_);
-        time_received_ = cslibs_time::Time(ros::Time::now().toNSec());
     }
 
     inline const typename cloud_t::Ptr& getPoints() const
