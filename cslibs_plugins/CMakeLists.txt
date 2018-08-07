@@ -10,6 +10,8 @@ include(cmake/cslibs_plugins_show_headers.cmake)
 include(cmake/cslibs_plugins_add_unit_test_gtest.cmake)
 
 find_package(catkin REQUIRED)
+find_package(TinyXML REQUIRED)
+
 catkin_package(
     INCLUDE_DIRS   include
     CFG_EXTRAS     cslibs_plugins_extras.cmake
@@ -17,6 +19,7 @@ catkin_package(
                    cslibs_plugins_openmp.cmake
                    cslibs_plugins_show_headers.cmake
                    cslibs_plugins_add_unit_test_gtest.cmake
+    DEPENDS TinyXML
 )
 
 include_directories(
