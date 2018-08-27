@@ -21,9 +21,8 @@ void LaserProvider2D::callback(const sensor_msgs::LaserScanConstPtr &msg)
     types::Laserscan::Ptr laserscan;
     if ((undistortion_ &&
          convertUndistorted(msg, tf_, undistortion_fixed_frame_, undistortion_tf_timeout_, laserscan)) ||
-            convert(msg, laserscan, enforce_stamp_)) {
+            convert(msg, laserscan, enforce_stamp_))
         data_received_(laserscan);
-    }
 
     time_of_last_measurement_ = msg->header.stamp;
 }

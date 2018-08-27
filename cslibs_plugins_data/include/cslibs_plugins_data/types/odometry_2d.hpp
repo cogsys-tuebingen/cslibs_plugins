@@ -99,32 +99,22 @@ public:
         return b;
     }
 
-    inline Odometry2D::ConstPtr cutBack(const time_t &split_time) const
-    {
-      Odometry2D::ConstPtr a;
-      Odometry2D::ConstPtr b;
-      split(split_time, a, b);
-      return b;
-    }
-
     inline bool split(const time_t         &split_time,
                       Odometry2D::ConstPtr &a,
                       Odometry2D::ConstPtr &b) const
     {
         auto do_not_split = []() {
-          return false;
+            return false;
         };
 
-        auto do_split = [&split_time, &a, &b, this] ()
-        {
+        auto do_split = [&split_time, &a, &b, this] () {
+            const double ratio = (split_time - time_frame_.start).nanoseconds() / time_frame_.duration().nanoseconds();
 
-          const double ratio = (split_time - time_frame_.start).seconds() / time_frame_.duration().seconds();
+            cslibs_math_2d::Pose2d split_pose = start_pose_.interpolate(end_pose_, ratio);
+            a.reset(new Odometry2D(frame_, time_frame_t(time_frame_.start, split_time), start_pose_, split_pose, time_received_));
+            b.reset(new Odometry2D(frame_, time_frame_t(split_time, time_frame_.end), split_pose, end_pose_, time_received_ + (split_time - time_frame_.start)));
 
-          cslibs_math_2d::Pose2d split_pose = start_pose_.interpolate(end_pose_, ratio);
-          a.reset(new Odometry2D(frame_, time_frame_t(time_frame_.start, split_time), start_pose_, split_pose, time_received_));
-          b.reset(new Odometry2D(frame_, time_frame_t(split_time, time_frame_.end), split_pose, end_pose_, time_received_ + (split_time - time_frame_.start)));
-
-          return true;
+            return true;
         };
 
         return time_frame_.within(split_time) ? do_split() : do_not_split();
