@@ -14,19 +14,28 @@ void Odometry2DProvider2D::callback(const nav_msgs::OdometryConstPtr &msg)
                                       tf::getYaw(msg->pose.pose.orientation));
     };
 
+    types::Odometry2D::Ptr odometry;
     if (last_msg_) {
         cslibs_time::TimeFrame time_frame(last_msg_->header.stamp.toNSec(),
                                           msg->header.stamp.toNSec());
-        types::Odometry2D::Ptr odometry(new types::Odometry2D(msg->header.frame_id,
-                                                              time_frame,
-                                                              to_pose(last_msg_),
-                                                              to_pose(msg),
-                                                              cslibs_time::Time(std::max(msg->header.stamp.toNSec(),
-                                                                                         ros::Time::now().toNSec()))));
-
-        data_received_(odometry);
+        odometry.reset(new types::Odometry2D(msg->header.frame_id,
+                                             time_frame,
+                                             to_pose(last_msg_),
+                                             to_pose(msg),
+                                             cslibs_time::Time(std::max(msg->header.stamp.toNSec(),
+                                             ros::Time::now().toNSec()))));
+    } else {
+        cslibs_time::TimeFrame time_frame(msg->header.stamp.toNSec(),
+                                          msg->header.stamp.toNSec());
+        odometry.reset(new types::Odometry2D(msg->header.frame_id,
+                                             time_frame,
+                                             to_pose(msg),
+                                             to_pose(msg),
+                                             cslibs_time::Time(std::max(msg->header.stamp.toNSec(),
+                                                               ros::Time::now().toNSec()))));
     }
 
+    data_received_(odometry);
     last_msg_ = msg;
 }
 
