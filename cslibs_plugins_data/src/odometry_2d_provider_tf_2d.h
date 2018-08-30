@@ -12,7 +12,7 @@ namespace cslibs_plugins_data {
 class Odometry2DProviderTF2D : public DataProvider2D
 {
 public:
-    using stamped_t = cslibs_time::Stamped<cslibs_math_2d::Transform2d>;
+    using stamped_t = cslibs_math::utility::Stamped<cslibs_math_2d::Transform2d>;
 
     Odometry2DProviderTF2D();
     virtual ~Odometry2DProviderTF2D();

@@ -8,7 +8,7 @@ CLASS_LOADER_REGISTER_CLASS(cslibs_plugins_data::Odometry2DProviderTF2D, cslibs_
 
 namespace cslibs_plugins_data {
 Odometry2DProviderTF2D::Odometry2DProviderTF2D() :
-    o_T_b1_(cslibs_math_2d::Transform2d(), cslibs_time::Time(ros::Time::now().toNSec())),
+    o_T_b1_(cslibs_math_2d::Transform2d(), cslibs_time::Time(ros::Time::now().toNSec()).time()),
     initialized_(false),
     rate_(60.0),
     running_(false),
@@ -45,7 +45,7 @@ void Odometry2DProviderTF2D::loop()
     running_ = true;
     while (!stop_) {
         const ros::Time now = ros::Time::now();
-        stamped_t o_T_b2(cslibs_math_2d::Transform2d(), cslibs_time::Time(now.toNSec()));
+        stamped_t o_T_b2(cslibs_math_2d::Transform2d(), cslibs_time::Time(now.toNSec()).time());
         if (tf_.lookupTransform(odom_frame_, base_frame_, now, o_T_b2, timeout_)) {
             if (initialized_) {
                 cslibs_time::TimeFrame time_frame(o_T_b1_.stamp(), o_T_b2.stamp());
