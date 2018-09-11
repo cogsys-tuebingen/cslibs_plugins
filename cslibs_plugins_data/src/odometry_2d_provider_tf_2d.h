@@ -9,10 +9,12 @@
 #include <cslibs_math_ros/tf/tf_listener_2d.hpp>
 
 namespace cslibs_plugins_data {
-class Odometry2DProviderTF2D : public DataProvider2D
+class EIGEN_ALIGN16 Odometry2DProviderTF2D : public DataProvider2D
 {
 public:
     using stamped_t = cslibs_math::utility::Stamped<cslibs_math_2d::Transform2d>;
+
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     Odometry2DProviderTF2D();
     virtual ~Odometry2DProviderTF2D();

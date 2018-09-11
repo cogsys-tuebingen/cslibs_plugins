@@ -11,15 +11,20 @@
 
 namespace cslibs_plugins_data {
 namespace types {
-class Laserscan : public Data
+class EIGEN_ALIGN16 Laserscan : public Data
 {
 public:
     using point_t       = cslibs_math_2d::Point2d;
     using time_frame_t  = cslibs_time::TimeFrame;
     using interval_t    = std::array<double, 2>;
+    using allocator_t   = Eigen::aligned_allocator<Laserscan>;
 
-    struct Ray {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+    struct EIGEN_ALIGN16 Ray {
+
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
         using allocator_t = Eigen::aligned_allocator<Ray>;
 
         const double  angle;
@@ -173,7 +178,7 @@ private:
     rays_t     rays_;         /// only valid rays shall be contained here
     interval_t linear_interval_;
     interval_t angular_interval_;
-}__attribute__ ((aligned (16)));
+};
 }
 }
 

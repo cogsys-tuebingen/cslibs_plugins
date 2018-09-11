@@ -8,7 +8,7 @@
 
 namespace cslibs_plugins_data {
 namespace types {
-class Odometry2D : public Data {
+class EIGEN_ALIGN16 Odometry2D : public Data {
 public:
     using Ptr          = std::shared_ptr<Odometry2D>;
     using ConstPtr     = std::shared_ptr<const Odometry2D>;
@@ -16,6 +16,7 @@ public:
     using time_t       = cslibs_time::Time;
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     using allocator_t = Eigen::aligned_allocator<Odometry2D>;
 
     Odometry2D(const std::string &frame) :
