@@ -6,13 +6,13 @@
 #include <atomic>
 
 #include <cslibs_plugins_data/data_provider_2d.hpp>
-#include <cslibs_math_ros/tf/tf_listener_2d.hpp>
+#include <cslibs_math_ros/tf/tf_listener.hpp>
 
 namespace cslibs_plugins_data {
 class EIGEN_ALIGN16 Odometry2DProviderTF2D : public DataProvider2D
 {
 public:
-    using stamped_t = cslibs_math::utility::Stamped<cslibs_math_2d::Transform2d>;
+    using stamped_t = cslibs_time::Stamped<cslibs_math_2d::Transform2d>;
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -20,7 +20,7 @@ public:
     virtual ~Odometry2DProviderTF2D();
 
 protected:
-    cslibs_math_ros::tf::TFListener2d     tf_;
+    cslibs_math_ros::tf::TFListener       tf_;
     std::string                           odom_frame_;
     std::string                           base_frame_;
 

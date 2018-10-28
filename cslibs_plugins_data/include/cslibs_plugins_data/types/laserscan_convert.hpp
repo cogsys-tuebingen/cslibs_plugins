@@ -4,7 +4,7 @@
 #include <sensor_msgs/LaserScan.h>
 
 #include <cslibs_plugins_data/types/laserscan.hpp>
-#include <cslibs_math_ros/tf/tf_listener_2d.hpp>
+#include <cslibs_math_ros/tf/tf_listener.hpp>
 
 namespace cslibs_plugins_data {
 namespace types {
@@ -82,7 +82,7 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
 }
 
 inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
-                               cslibs_math_ros::tf::TFListener2d::Ptr   &tf_listener,
+                               cslibs_math_ros::tf::TFProvider::Ptr     &tf_listener,
                                const std::string                        &fixed_frame,
                                const ros::Duration                      &tf_timeout,
                                Laserscan::Ptr                           &dst)
@@ -115,9 +115,11 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
 
     const ros::Time end_stamp = start_stamp + delta_stamp * src_ranges.size();
 
-    tf::StampedTransform start_T_end;
-    if (!tf_listener->lookupTransform(fixed_frame, dst->getFrame(), end_stamp, start_T_end, tf_timeout))
+
+    cslibs_math_2d::Transform2d cs_start_T_end;
+    if (!tf_listener->lookupTransform(fixed_frame, dst->getFrame(), end_stamp, cs_start_T_end, tf_timeout))
         return false;
+    tf::Transform start_T_end = cslibs_math_ros::tf::conversion_2d::from(cs_start_T_end);
 
     if (!tf_listener->waitForTransform(fixed_frame, dst->getFrame(), start_stamp, tf_timeout))
         return false;
@@ -128,9 +130,9 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
     auto stamp = start_stamp;
     for (const auto range : src_ranges) {
         if (in_linear_interval(range) && in_angular_interval(angle)) {
-            tf::StampedTransform start_T_stamp;
-            tf_listener->lookupTransform(fixed_frame, dst->getFrame(), stamp, start_T_stamp);
-            tf::Transform end_T_stamp = end_T_start * start_T_stamp;
+            cslibs_math_2d::Transform2d cs_start_T_stamp;
+            tf_listener->lookupTransform(fixed_frame, dst->getFrame(), stamp, cs_start_T_stamp);
+            tf::Transform end_T_stamp = end_T_start * cslibs_math_ros::tf::conversion_2d::from(cs_start_T_stamp);
             tf::Point pt = end_T_stamp * tf::Point(std::cos(angle) * range, std::sin(angle) * range, 0.0);
             dst->insert(cslibs_math_2d::Point2d(pt.x(), pt.y()));
         } else

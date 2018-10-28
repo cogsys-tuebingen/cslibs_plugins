@@ -1,6 +1,7 @@
 #include "odometry_2d_provider_2d.h"
 
 #include <cslibs_plugins_data/types/odometry_2d.hpp>
+#include <tf/tf.h>
 
 #include <class_loader/class_loader_register_macro.h>
 CLASS_LOADER_REGISTER_CLASS(cslibs_plugins_data::Odometry2DProvider2D, cslibs_plugins_data::DataProvider2D)

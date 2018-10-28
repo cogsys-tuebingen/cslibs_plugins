@@ -2,7 +2,8 @@
 #define CSLIBS_PLUGINS_DATA_PROVIDER_2D_HPP
 
 #include <cslibs_plugins_data/data_provider.hpp>
-#include <cslibs_math_ros/tf/tf_listener_2d.hpp>
+#include <cslibs_math_ros/tf/tf_provider.hpp>
+#include <ros/node_handle.h>
 
 namespace cslibs_plugins_data {
 class DataProvider2D : public DataProvider
@@ -15,7 +16,7 @@ public:
         return "cslibs_plugins_data::DataProvider2D";
     }
 
-    inline void setup(const cslibs_math_ros::tf::TFListener2d::Ptr &tf,
+    inline void setup(const cslibs_math_ros::tf::TFProvider::Ptr &tf,
                       ros::NodeHandle &nh)
     {
         auto param_name = [this](const std::string &name){ return name_ + "/" + name; };
@@ -26,7 +27,7 @@ public:
     }
 
 protected:
-    cslibs_math_ros::tf::TFListener2d::Ptr tf_;
+    cslibs_math_ros::tf::TFProvider::Ptr   tf_;
     ros::Duration                          tf_timeout_;
 
     virtual void doSetup(ros::NodeHandle &nh) = 0;
