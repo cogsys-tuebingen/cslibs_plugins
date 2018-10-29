@@ -3,14 +3,14 @@
 
 #include <sensor_msgs/PointCloud2.h>
 
-#include <cslibs_plugins_data/data_provider_2d.hpp>
+#include <cslibs_plugins_data/data_provider.hpp>
 
 namespace cslibs_plugins_data {
-class PointcloudProvider2D : public DataProvider2D
+class Pointcloud3dProvider : public DataProvider
 {
 public:
-    PointcloudProvider2D();
-    virtual ~PointcloudProvider2D() = default;
+    Pointcloud3dProvider();
+    virtual ~Pointcloud3dProvider() = default;
 
 protected:
     ros::Subscriber source_;                    /// the subscriber to be used

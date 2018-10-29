@@ -1,13 +1,13 @@
-#include "odometry_2d_provider_2d.h"
+#include "odometry_2d_provider.h"
 
 #include <cslibs_plugins_data/types/odometry_2d.hpp>
 #include <tf/tf.h>
 
 #include <class_loader/class_loader_register_macro.h>
-CLASS_LOADER_REGISTER_CLASS(cslibs_plugins_data::Odometry2DProvider2D, cslibs_plugins_data::DataProvider2D)
+CLASS_LOADER_REGISTER_CLASS(cslibs_plugins_data::Odometry2DProvider, cslibs_plugins_data::DataProvider)
 
 namespace cslibs_plugins_data {
-void Odometry2DProvider2D::callback(const nav_msgs::OdometryConstPtr &msg)
+void Odometry2DProvider::callback(const nav_msgs::OdometryConstPtr &msg)
 {
     auto to_pose = [](const nav_msgs::OdometryConstPtr &msg) {
         return cslibs_math_2d::Pose2d(msg->pose.pose.position.x,
@@ -40,12 +40,12 @@ void Odometry2DProvider2D::callback(const nav_msgs::OdometryConstPtr &msg)
     last_msg_ = msg;
 }
 
-void Odometry2DProvider2D::doSetup(ros::NodeHandle &nh)
+void Odometry2DProvider::doSetup(ros::NodeHandle &nh)
 {
     auto param_name = [this](const std::string &name){return name_ + "/" + name;};
 
     const int queue_size = nh.param<int>(param_name("queue_size"), 1);
     topic_ = nh.param<std::string>(param_name("topic"), "/odom");
-    source_= nh.subscribe(topic_, queue_size, &Odometry2DProvider2D::callback, this);
+    source_= nh.subscribe(topic_, queue_size, &Odometry2DProvider::callback, this);
 }
 }

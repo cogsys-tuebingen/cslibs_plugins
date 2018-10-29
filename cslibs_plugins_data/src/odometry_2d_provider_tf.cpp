@@ -1,13 +1,13 @@
-#include "odometry_2d_provider_tf_2d.h"
+#include "odometry_2d_provider_tf.h"
 
 #include <cslibs_plugins_data/types/odometry_2d.hpp>
 #include <tf/tf.h>
 
 #include <class_loader/class_loader_register_macro.h>
-CLASS_LOADER_REGISTER_CLASS(cslibs_plugins_data::Odometry2DProviderTF2D, cslibs_plugins_data::DataProvider2D)
+CLASS_LOADER_REGISTER_CLASS(cslibs_plugins_data::Odometry2DProviderTF, cslibs_plugins_data::DataProvider)
 
 namespace cslibs_plugins_data {
-Odometry2DProviderTF2D::Odometry2DProviderTF2D() :
+Odometry2DProviderTF::Odometry2DProviderTF() :
     o_T_b1_(cslibs_math_2d::Transform2d(), cslibs_time::Time(ros::Time::now().toNSec()).time()),
     initialized_(false),
     rate_(60.0),
@@ -16,7 +16,7 @@ Odometry2DProviderTF2D::Odometry2DProviderTF2D() :
 {
 }
 
-Odometry2DProviderTF2D::~Odometry2DProviderTF2D()
+Odometry2DProviderTF::~Odometry2DProviderTF()
 {
     if( running_) {
         stop_ = true;
@@ -25,7 +25,7 @@ Odometry2DProviderTF2D::~Odometry2DProviderTF2D()
     }
 }
 
-void Odometry2DProviderTF2D::doSetup(ros::NodeHandle &nh)
+void Odometry2DProviderTF::doSetup(ros::NodeHandle &nh)
 {
     auto param_name = [this](const std::string &name){return name_ + "/" + name;};
 
@@ -40,7 +40,7 @@ void Odometry2DProviderTF2D::doSetup(ros::NodeHandle &nh)
     }
 }
 
-void Odometry2DProviderTF2D::loop()
+void Odometry2DProviderTF::loop()
 {
     running_ = true;
     while (!stop_) {

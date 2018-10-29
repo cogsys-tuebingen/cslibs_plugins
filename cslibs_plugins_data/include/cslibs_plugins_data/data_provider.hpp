@@ -10,6 +10,9 @@
 #include <cslibs_utility/signals/signals.hpp>
 #include <cslibs_utility/common/delegate.hpp>
 
+#include <cslibs_math_ros/tf/tf_provider.hpp>
+#include <ros/node_handle.h>
+
 namespace cslibs_plugins_data {
 class DataProvider : public cslibs_plugins::Plugin
 {
@@ -25,6 +28,16 @@ public:
     inline const static std::string Type()
     {
         return "cslibs_plugins_data::DataProvider";
+    }
+
+    inline void setup(const cslibs_math_ros::tf::TFProvider::Ptr &tf,
+                      ros::NodeHandle &nh)
+    {
+        auto param_name = [this](const std::string &name){ return name_ + "/" + name; };
+
+        tf_         = tf;
+        tf_timeout_ = ros::Duration(nh.param<double>(param_name("tf_timeout"), 0.1));
+        doSetup(nh);
     }
 
      /**
@@ -55,7 +68,13 @@ public:
     }
 
 protected:
-    signal_t data_received_;
+    signal_t                                data_received_;
+
+    cslibs_math_ros::tf::TFProvider::Ptr    tf_;
+    ros::Duration                           tf_timeout_;
+
+    virtual void doSetup(ros::NodeHandle &nh) = 0;
+
 };
 }
 

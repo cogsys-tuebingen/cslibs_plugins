@@ -1,23 +1,23 @@
-#ifndef CSLIBS_PLUGINS_DATA_ODOMETRY_2D_PROVIDER_TF_2D_H
-#define CSLIBS_PLUGINS_DATA_ODOMETRY_2D_PROVIDER_TF_2D_H
+#ifndef CSLIBS_PLUGINS_DATA_ODOMETRY_2D_PROVIDER_TF_H
+#define CSLIBS_PLUGINS_DATA_ODOMETRY_2D_PROVIDER_TF_H
 
 #include <ros/ros.h>
 #include <thread>
 #include <atomic>
 
-#include <cslibs_plugins_data/data_provider_2d.hpp>
+#include <cslibs_plugins_data/data_provider.hpp>
 #include <cslibs_math_ros/tf/tf_listener.hpp>
 
 namespace cslibs_plugins_data {
-class EIGEN_ALIGN16 Odometry2DProviderTF2D : public DataProvider2D
+class EIGEN_ALIGN16 Odometry2DProviderTF : public DataProvider
 {
 public:
     using stamped_t = cslibs_time::Stamped<cslibs_math_2d::Transform2d>;
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    Odometry2DProviderTF2D();
-    virtual ~Odometry2DProviderTF2D();
+    Odometry2DProviderTF();
+    virtual ~Odometry2DProviderTF();
 
 protected:
     cslibs_math_ros::tf::TFListener       tf_;
@@ -37,4 +37,4 @@ protected:
 };
 }
 
-#endif // CSLIBS_PLUGINS_DATA_ODOMETRY_2D_PROVIDER_TF_2D_H
+#endif // CSLIBS_PLUGINS_DATA_ODOMETRY_2D_PROVIDER_TF_H
