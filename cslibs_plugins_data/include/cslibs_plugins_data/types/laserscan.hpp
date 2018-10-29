@@ -21,6 +21,9 @@ public:
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+    /**
+     * @brief The Ray struct represents a scan ray with start point, end point, angle and range.
+     */
     struct EIGEN_ALIGN16 Ray {
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -29,70 +32,123 @@ public:
 
         const double  angle;
         const double  range;
-        const point_t point;
+        const point_t end_point;
+        const point_t start_point;
 
+        /**
+         * @brief Ray constructor.
+         * @param angle         - ray angle
+         * @param range         - ray range
+         * @param start_point   - the point the ray originates from
+         */
         inline Ray(const double angle,
-                   const double range) :
+                   const double range,
+                   const point_t start_point = point_t()) :
             angle(angle),
             range(range),
-            point(point_t(std::cos(angle) * range,
-                          std::sin(angle) * range))
+            end_point(point_t(std::cos(angle) * range,
+                              std::sin(angle) * range)),
+            start_point(start_point)
         {
         }
 
-        inline Ray(const point_t &pt) :
-                   angle(cslibs_math_2d::angle(pt)),
-                   range(pt.length()),
-                   point(pt)
+        /**
+         * @brief Ray constructor.
+         * @param end_point     - the point the ray is ending at
+         * @param start_point   - the point the ray originates from
+         */
+        inline Ray(const point_t &end_point,
+                   const point_t &start_point = point_t()) :
+                   angle(cslibs_math_2d::angle(end_point - start_point)),
+                   range((end_point  - start_point).length()),
+                   end_point(end_point),
+                   start_point(start_point)
         {
         }
 
+        /**
+         * @brief Ray
+         * @param angle         - ray angle
+         * @param range         - ray range
+         * @param end_point     - the point the ray is ending at
+         * @param start_point   - the point the ray originates from
+         */
+        inline Ray(const double angle,
+                   const double range,
+                   const point_t &end_point,
+                   const point_t &start_point) :
+                   angle(angle),
+                   range(range),
+                   end_point(end_point),
+                   start_point(start_point)
+        {
+        }
+
+        /**
+         * @brief Ray empty constructor resulting in invalid ray.
+         */
         inline Ray() :
             angle(0.0),
             range(0.0),
-            point(point_t())
+            end_point(point_t()),
+            start_point(point_t())
         {
         }
 
+        /**
+         * @brief Ray copy constructor.
+         * @param other         - ray to make a copy from
+         */
         inline Ray(const Ray &other) :
             angle(other.angle),
             range(other.range),
-            point(other.point)
+            end_point(other.end_point),
+            start_point(other.start_point)
         {
         }
 
+        /**
+         * @brief Ray move constructor.
+         * @param other         - the ray to move
+         */
         inline Ray(Ray &&other) :
             angle(other.angle),
             range(other.range),
-            point(std::move(other.point))
+            end_point(std::move(other.end_point)),
+            start_point(std::move(other.start_point))
         {
         }
 
+        /**
+         * @brief Check wehter a ray can be considered valid.
+         * @return
+         */
         inline bool valid() const
         {
-            return std::isnormal(range);
+            return std::isnormal(range) && range > 0.0;
         }
 
     };
 
     using Ptr              = std::shared_ptr<Laserscan>;
+    using ConstPtr         = std::shared_ptr<const Laserscan>;
     using rays_t           = std::vector<Ray, Ray::allocator_t>;
     using const_iterator_t = rays_t::const_iterator;
 
     Laserscan(const std::string          &frame,
-                const time_frame_t       &time_frame,
-                const cslibs_time::Time  &time_received) :
+              const time_frame_t       &time_frame,
+              const cslibs_time::Time  &time_received) :
         Data(frame, time_frame, time_received),
         linear_interval_{0.0, std::numeric_limits<double>::max()},
         angular_interval_{-M_PI, M_PI}
     {
     }
 
-    Laserscan(const std::string          &frame,
-                const time_frame_t       &time_frame,
-                const interval_t         &linear_interval,
-                const interval_t         &angular_interval,
-                const cslibs_time::Time  &time_received) :
+    Laserscan(const std::string        &frame,
+              const time_frame_t       &time_frame,
+              const interval_t         &linear_interval,
+              const interval_t         &angular_interval,
+              const cslibs_time::Time  &time_received) :
         Data(frame, time_frame, time_received),
         linear_interval_(linear_interval),
         angular_interval_(angular_interval)
@@ -144,15 +200,28 @@ public:
     }
 
     inline void insert(const double angle,
-                       const double range)
+                       const double range,
+                       const point_t &start_point = point_t())
     {
-        rays_.emplace_back(Ray(angle, range));
+        rays_.emplace_back(Ray(angle, range, start_point));
     }
 
-    inline void insert(const point_t &pt)
+    inline void insert(const point_t &end_point,
+                       const point_t &start_point = point_t())
     {
-        rays_.emplace_back(Ray(pt));
+        rays_.emplace_back(Ray(end_point, start_point));
     }
+
+    inline void insert(const double angle,
+                       const double range,
+                       const point_t &end_point,
+                       const point_t &start_point = point_t())
+    {
+        rays_.emplace_back(Ray(range, angle, end_point, start_point));
+    }
+
+
+
 
     inline void insertInvalid()
     {

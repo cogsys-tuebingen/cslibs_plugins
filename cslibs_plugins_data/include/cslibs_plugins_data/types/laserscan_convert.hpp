@@ -3,6 +3,7 @@
 
 #include <sensor_msgs/LaserScan.h>
 
+#include <cslibs_math_3d/linear/pointcloud.hpp>
 #include <cslibs_plugins_data/types/laserscan.hpp>
 #include <cslibs_math_ros/tf/tf_listener.hpp>
 
@@ -43,7 +44,6 @@ inline Laserscan::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
                                                                     ros::Time::now().toNSec()))));
 }
 
-
 inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
                     Laserscan::Ptr                       &dst,
                     const bool                            enforce_stamp)
@@ -79,6 +79,61 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
         angle += src_angle_increment;
     }
     return true;
+}
+
+
+inline bool convert(const sensor_msgs::LaserScanConstPtr     &src,
+                    cslibs_math_ros::tf::TFProvider::Ptr     &tf_listener,
+                    const std::string                        &tf_target_frame,
+                    const ros::Duration                      &tf_timeout,
+                    Laserscan::Ptr                           &dst,
+                    const bool                                enforce_stamp)
+{
+    const auto src_linear_min  = static_cast<double>(src->range_min);
+    const auto src_linear_max  = static_cast<double>(src->range_max);
+    const auto src_angular_min = static_cast<double>(src->angle_min);
+    const auto src_angular_max = static_cast<double>(src->angle_max);
+    const auto &src_ranges         = src->ranges;
+    const auto src_angle_increment = src->angle_increment;
+
+    if (src_ranges.size() == 0ul)
+        return false;
+
+    const interval_t dst_linear_interval  = { src_linear_min,  src_linear_max };
+    const interval_t dst_angular_interval = { src_angular_min, src_angular_max };
+    dst = create(src, dst_linear_interval, dst_angular_interval, enforce_stamp);
+
+    auto in_linear_interval = [&dst_linear_interval](const double range) {
+        return range >= dst_linear_interval[0] && range <= dst_linear_interval[1];
+    };
+    auto in_angular_interval = [&dst_angular_interval](const double angle) {
+        return angle >= dst_angular_interval[0] && angle <= dst_angular_interval[1];
+    };
+
+    cslibs_math_3d::Transform3d t_T_l;
+    if(tf_listener->lookupTransform(tf_target_frame, src->header.frame_id, src->header.stamp, t_T_l, tf_timeout)) {
+        auto angle = src_angular_min;
+        for (const auto range : src_ranges) {
+            if(in_linear_interval(range) && in_angular_interval(angle)) {
+                const cslibs_math_3d::Point3d p = t_T_l * cslibs_math_3d::Point3d(std::cos(angle) * range,
+                                                                                  std::sin(angle) * range,
+                                                                                  0.0);
+                const cslibs_math_2d::Point2d end_point(p(0), p(1));
+                const cslibs_math_2d::Point2d start_point(t_T_l.tx(), t_T_l.ty());
+
+                const double angle = cslibs_math_2d::angle(end_point - start_point);
+                const double range = cslibs_math::linear::distance(start_point, end_point);
+
+                dst->insert(angle, range, end_point, start_point);
+            } else {
+                dst->insertInvalid();
+            }
+
+            angle += src_angle_increment;
+        }
+        return true;
+    }
+    return false;
 }
 
 inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
