@@ -25,6 +25,9 @@ protected:
     ros::Duration   time_offset_;
     ros::Time       time_of_last_measurement_;
 
+    bool            transform_;
+    std::string     transform_to_frame_;
+
     virtual void callback(const sensor_msgs::LaserScanConstPtr &msg);
     virtual void doSetup(ros::NodeHandle &nh) override;
 };

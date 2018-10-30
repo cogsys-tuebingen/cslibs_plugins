@@ -32,8 +32,6 @@ cslibs_plugins_data_show_headers()
 
 add_library(${PROJECT_NAME}
     src/laser_provider.cpp
-    src/laser_pointcloud_2d_provider.cpp
-    src/laser_polar_pointcloud_2d_provider.cpp
     src/odometry_2d_provider.cpp
     src/odometry_2d_provider_tf.cpp
     src/pointcloud_3d_provider.cpp
