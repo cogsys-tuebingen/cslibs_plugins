@@ -30,17 +30,17 @@ public:
     {
     }
 
-    inline const std::string & getFrame() const
+    inline const std::string & frame() const
     {
         return frame_;
     }
 
-    inline const cslibs_time::TimeFrame & getTimeFrame() const
+    inline const cslibs_time::TimeFrame & timeFrame() const
     {
         return time_frame_;
     }
 
-    inline cslibs_time::Time const & getStampReceived() const
+    inline cslibs_time::Time const & stampReceived() const
     {
         return time_received_;
     }

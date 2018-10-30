@@ -13,6 +13,7 @@ namespace types {
 using interval_t = std::array<double, 2>;
 
 inline Laserscan::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
+                             const std::string                    &frame_id,
                              const interval_t                     &linear_interval,
                              const interval_t                     &angular_interval,
                              const bool                            enforce_stamp = false)
@@ -20,7 +21,7 @@ inline Laserscan::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
     const ros::Time start_stamp = src->header.stamp;
     if (enforce_stamp) {
       const  Laserscan::time_frame_t time_frame(start_stamp.toNSec(), start_stamp.toNSec());
-      return Laserscan::Ptr (new Laserscan(src->header.frame_id,
+      return Laserscan::Ptr (new Laserscan(frame_id,
                                            time_frame,
                                            linear_interval,
                                            angular_interval,
@@ -60,7 +61,7 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
 
     const interval_t dst_linear_interval  = { src_linear_min,  src_linear_max };
     const interval_t dst_angular_interval = { src_angular_min, src_angular_max };
-    dst = create(src, dst_linear_interval, dst_angular_interval, enforce_stamp);
+    dst = create(src, src->header.frame_id, dst_linear_interval, dst_angular_interval, enforce_stamp);
 
     auto in_linear_interval = [&dst_linear_interval](const double range) {
         return range >= dst_linear_interval[0] && range <= dst_linear_interval[1];
@@ -101,7 +102,7 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr     &src,
 
     const interval_t dst_linear_interval  = { src_linear_min,  src_linear_max };
     const interval_t dst_angular_interval = { src_angular_min, src_angular_max };
-    dst = create(src, dst_linear_interval, dst_angular_interval, enforce_stamp);
+    dst = create(src, tf_target_frame, dst_linear_interval, dst_angular_interval, enforce_stamp);
 
     auto in_linear_interval = [&dst_linear_interval](const double range) {
         return range >= dst_linear_interval[0] && range <= dst_linear_interval[1];
@@ -121,10 +122,10 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr     &src,
                 const cslibs_math_2d::Point2d end_point(p(0), p(1));
                 const cslibs_math_2d::Point2d start_point(t_T_l.tx(), t_T_l.ty());
 
-                const double angle = cslibs_math_2d::angle(end_point - start_point);
+                const double transformed_angle = cslibs_math_2d::angle(end_point - start_point);
                 const double range = cslibs_math::linear::distance(start_point, end_point);
 
-                dst->insert(angle, range, end_point, start_point);
+                dst->insert(transformed_angle, range, end_point, start_point);
             } else {
                 dst->insertInvalid();
             }
@@ -154,7 +155,7 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
 
     const interval_t dst_linear_interval  = { src_linear_min,  src_linear_max };
     const interval_t dst_angular_interval = { src_angular_min, src_angular_max };
-    dst = create(src, dst_linear_interval, dst_angular_interval);
+    dst = create(src, src->header.frame_id, dst_linear_interval, dst_angular_interval);
 
     auto in_linear_interval = [&dst_linear_interval](const double range) {
         return range >= dst_linear_interval[0] && range <= dst_linear_interval[1];
@@ -172,11 +173,11 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
 
 
     cslibs_math_2d::Transform2d cs_start_T_end;
-    if (!tf_listener->lookupTransform(fixed_frame, dst->getFrame(), end_stamp, cs_start_T_end, tf_timeout))
+    if (!tf_listener->lookupTransform(fixed_frame, dst->frame(), end_stamp, cs_start_T_end, tf_timeout))
         return false;
     tf::Transform start_T_end = cslibs_math_ros::tf::conversion_2d::from(cs_start_T_end);
 
-    if (!tf_listener->waitForTransform(fixed_frame, dst->getFrame(), start_stamp, tf_timeout))
+    if (!tf_listener->waitForTransform(fixed_frame, dst->frame(), start_stamp, tf_timeout))
         return false;
 
     tf::Transform end_T_start = start_T_end.inverse();
@@ -186,7 +187,7 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
     for (const auto range : src_ranges) {
         if (in_linear_interval(range) && in_angular_interval(angle)) {
             cslibs_math_2d::Transform2d cs_start_T_stamp;
-            tf_listener->lookupTransform(fixed_frame, dst->getFrame(), stamp, cs_start_T_stamp);
+            tf_listener->lookupTransform(fixed_frame, dst->frame(), stamp, cs_start_T_stamp);
             tf::Transform end_T_stamp = end_T_start * cslibs_math_ros::tf::conversion_2d::from(cs_start_T_stamp);
             tf::Point pt = end_T_stamp * tf::Point(std::cos(angle) * range, std::sin(angle) * range, 0.0);
             dst->insert(cslibs_math_2d::Point2d(pt.x(), pt.y()));
