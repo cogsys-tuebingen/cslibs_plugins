@@ -217,11 +217,8 @@ public:
                        const point_t &end_point,
                        const point_t &start_point = point_t())
     {
-        rays_.emplace_back(Ray(range, angle, end_point, start_point));
+        rays_.emplace_back(Ray(angle, range, end_point, start_point));
     }
-
-
-
 
     inline void insertInvalid()
     {
