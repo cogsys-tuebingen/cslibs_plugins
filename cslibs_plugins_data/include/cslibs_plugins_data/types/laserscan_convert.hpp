@@ -37,7 +37,7 @@ inline Laserscan::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
     const uint64_t end_time   = start_time + delta_stamp.toNSec();
 
     const  Laserscan::time_frame_t time_frame(start_time, end_time);
-    return Laserscan::Ptr (new Laserscan(src->header.frame_id,
+    return Laserscan::Ptr (new Laserscan(frame_id,
                                          time_frame,
                                          linear_interval,
                                          angular_interval,
