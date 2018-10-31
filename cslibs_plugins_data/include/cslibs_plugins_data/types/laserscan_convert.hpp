@@ -113,6 +113,7 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr     &src,
 
     cslibs_math_3d::Transform3d t_T_l;
     if(tf_listener->lookupTransform(tf_target_frame, src->header.frame_id, src->header.stamp, t_T_l, tf_timeout)) {
+        const cslibs_math_2d::Point2d start_point(t_T_l.tx(), t_T_l.ty());
         auto angle = src_angular_min;
         for (const auto range : src_ranges) {
             if(in_linear_interval(range) && in_angular_interval(angle)) {
@@ -120,7 +121,6 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr     &src,
                                                                                   std::sin(angle) * range,
                                                                                   0.0);
                 const cslibs_math_2d::Point2d end_point(p(0), p(1));
-                const cslibs_math_2d::Point2d start_point(t_T_l.tx(), t_T_l.ty());
 
                 const double transformed_angle = cslibs_math_2d::angle(end_point - start_point);
                 const double range = cslibs_math::linear::distance(start_point, end_point);
