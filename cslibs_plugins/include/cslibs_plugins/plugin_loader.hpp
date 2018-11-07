@@ -4,7 +4,11 @@
 #include "plugin_factory.hpp"
 #include <map>
 #include <ros/node_handle.h>
-#include <boost/regex.hpp>
+#if __GNUC__ > 5
+# include <regex>
+#else
+# include <boost/regex.hpp>
+#endif
 
 namespace cslibs_plugins {
 class PluginLoader
@@ -81,13 +85,28 @@ private:
     inline void parseLaunchFile()
     {
         std::string  ns = nh_private_.getNamespace();
-        boost::regex class_regex("(" + ns + "/)(.*)(/class)");
-        boost::regex base_class_regex("(" + ns + "/)(.*)(/base_class)");
 
         /// first parse the parameters
         std::vector<std::string> params;
         nh_private_.getParamNames(params);
 
+        static const std::string class_regex_str = "(" + ns + "/)(.*)(/class)";
+        static const std::string base_class_regex_str = "(" + ns + "/)(.*)(/base_class)";
+
+#if __GNUC__ > 5
+        std::regex class_regex(class_regex_str);
+        std::regex base_class_regex(base_class_regex_str);
+        std::cmatch match;
+        for (const std::string &p : params) {
+            if (std::regex_match(p.c_str(), match, class_regex))
+                nh_private_.getParam(p, plugins_found_[match[2]].class_name);
+
+            if (std::regex_match(p.c_str(), match, base_class_regex))
+                nh_private_.getParam(p, plugins_found_[match[2]].base_class_name);
+        }
+#else
+        boost::regex class_regex(class_regex_str);
+        boost::regex base_class_regex(base_class_regex_str);
         boost::cmatch match;
         for (const std::string &p : params) {
             if (boost::regex_match(p.c_str(), match, class_regex))
@@ -96,6 +115,7 @@ private:
             if (boost::regex_match(p.c_str(), match, base_class_regex))
                 nh_private_.getParam(p, plugins_found_[match[2]].base_class_name);
         }
+#endif
     }
 };
 }
