@@ -18,15 +18,17 @@ public:
     virtual ~LaserProvider() = default;
 
 protected:
-    ros::Subscriber source_;                    /// the subscriber to be used
-    std::string     topic_;                     /// topic to listen to
-    bool            enforce_stamp_;             /// Enforce that start_time = stamp = end_time
+    ros::Subscriber         source_;                    /// the subscriber to be used
+    std::string             topic_;                     /// topic to listen to
+    bool                    enforce_stamp_;             /// Enforce that start_time = stamp = end_time
 
-    ros::Duration   time_offset_;
-    ros::Time       time_of_last_measurement_;
+    ros::Duration           time_offset_;
+    ros::Time               time_of_last_measurement_;
 
-    bool            transform_;
-    std::string     transform_to_frame_;
+    bool                    transform_;
+    std::string             transform_to_frame_;
+
+    std::array<double, 2>   range_limits_;
 
     virtual void callback(const sensor_msgs::LaserScanConstPtr &msg);
     virtual void doSetup(ros::NodeHandle &nh) override;
