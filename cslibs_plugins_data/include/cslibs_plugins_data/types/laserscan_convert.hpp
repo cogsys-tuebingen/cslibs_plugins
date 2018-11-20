@@ -47,10 +47,12 @@ inline Laserscan::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
 
 inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
                     Laserscan::Ptr                       &dst,
+                    const double                         &range_min,
+                    const double                         &range_max,
                     const bool                            enforce_stamp)
 {
-    const auto src_linear_min  = static_cast<double>(src->range_min);
-    const auto src_linear_max  = static_cast<double>(src->range_max);
+    const auto src_linear_min  = std::max(range_min, static_cast<double>(src->range_min));
+    const auto src_linear_max  = std::min(range_max, static_cast<double>(src->range_max));
     const auto src_angular_min = static_cast<double>(src->angle_min);
     const auto src_angular_max = static_cast<double>(src->angle_max);
     const auto &src_ranges         = src->ranges;
@@ -88,10 +90,12 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr     &src,
                     const std::string                        &tf_target_frame,
                     const ros::Duration                      &tf_timeout,
                     Laserscan::Ptr                           &dst,
+                    const double                             &range_min,
+                    const double                             &range_max,
                     const bool                                enforce_stamp)
 {
-    const auto src_linear_min  = static_cast<double>(src->range_min);
-    const auto src_linear_max  = static_cast<double>(src->range_max);
+    const auto src_linear_min  = std::max(range_min, static_cast<double>(src->range_min));
+    const auto src_linear_max  = std::min(range_max, static_cast<double>(src->range_max));
     const auto src_angular_min = static_cast<double>(src->angle_min);
     const auto src_angular_max = static_cast<double>(src->angle_max);
     const auto &src_ranges         = src->ranges;

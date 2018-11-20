@@ -22,6 +22,9 @@ protected:
     std::string     topic_;                     /// topic to listen to
     bool            enforce_stamp_;             /// Enforce that start_time = stamp = end_time
 
+    double          range_min_;                 /// Set range min manually
+    double          range_max_;                 /// Set range max manually
+
     ros::Duration   time_offset_;
     ros::Time       time_of_last_measurement_;
 

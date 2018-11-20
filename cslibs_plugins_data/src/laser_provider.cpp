@@ -19,8 +19,8 @@ void LaserProvider::callback(const sensor_msgs::LaserScanConstPtr &msg)
             return;
 
     types::Laserscan::Ptr laserscan;
-    if(transform_ ? convert(msg, tf_, transform_to_frame_, tf_timeout_, laserscan, enforce_stamp_) :
-                    convert(msg, laserscan, enforce_stamp_))
+    if(transform_ ? convert(msg, tf_, transform_to_frame_, tf_timeout_, laserscan, range_min_, range_max_, enforce_stamp_) :
+                    convert(msg, laserscan, range_min_, range_max_, enforce_stamp_))
         data_received_(laserscan);
 
     time_of_last_measurement_ = msg->header.stamp;
@@ -36,6 +36,8 @@ void LaserProvider::doSetup(ros::NodeHandle &nh)
     source_                     = nh.subscribe(topic_, queue_size, &LaserProvider::callback, this);
 
     enforce_stamp_              = nh.param<bool>(param_name("enforce_stamp"), true);
+    range_min_                  = nh.param<double>(param_name("range_min"), 0.0);
+    range_max_                  = nh.param<double>(param_name("range_max"), std::numeric_limits<double>::max());
 
     transform_                  = nh.param<bool>(param_name("transform"), true);
     transform_to_frame_         = nh.param<std::string>(param_name("transform_to_frame"), "base_link");
