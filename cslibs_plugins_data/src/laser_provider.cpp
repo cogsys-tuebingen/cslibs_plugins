@@ -40,8 +40,8 @@ void LaserProvider::doSetup(ros::NodeHandle &nh)
     transform_                  = nh.param<bool>(param_name("transform"), true);
     transform_to_frame_         = nh.param<std::string>(param_name("transform_to_frame"), "base_link");
 
-    range_limits_               = {nh.param<double>(param_name("range_min"), std::numeric_limits<double>::max()), 
-                                   nh.param<double>(param_name("range_max"), 0.0)};
+    range_limits_               = {nh.param<double>(param_name("range_min"), 0.0),
+                                   nh.param<double>(param_name("range_max"), std::numeric_limits<double>::max())};
 
     double rate                 = nh.param<double>(param_name("rate"), 0.0);
     if (rate > 0.0) {
