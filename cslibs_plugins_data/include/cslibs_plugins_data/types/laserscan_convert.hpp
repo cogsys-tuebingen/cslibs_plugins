@@ -46,13 +46,12 @@ inline Laserscan::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
 }
 
 inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
+                    const interval_t                     &range_limits,
                     Laserscan::Ptr                       &dst,
-                    const double                         &range_min,
-                    const double                         &range_max,
                     const bool                            enforce_stamp)
 {
-    const auto src_linear_min  = std::max(range_min, static_cast<double>(src->range_min));
-    const auto src_linear_max  = std::min(range_max, static_cast<double>(src->range_max));
+    const auto src_linear_min  = std::max(static_cast<double>(src->range_min), range_limits[0]);
+    const auto src_linear_max  = std::min(static_cast<double>(src->range_max), range_limits[1]);
     const auto src_angular_min = static_cast<double>(src->angle_min);
     const auto src_angular_max = static_cast<double>(src->angle_max);
     const auto &src_ranges         = src->ranges;
@@ -89,13 +88,12 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr     &src,
                     cslibs_math_ros::tf::TFProvider::Ptr     &tf_listener,
                     const std::string                        &tf_target_frame,
                     const ros::Duration                      &tf_timeout,
+                    const interval_t                         &range_limits,
                     Laserscan::Ptr                           &dst,
-                    const double                             &range_min,
-                    const double                             &range_max,
                     const bool                                enforce_stamp)
 {
-    const auto src_linear_min  = std::max(range_min, static_cast<double>(src->range_min));
-    const auto src_linear_max  = std::min(range_max, static_cast<double>(src->range_max));
+    const auto src_linear_min  = std::max(static_cast<double>(src->range_min), range_limits[0]);
+    const auto src_linear_max  = std::min(static_cast<double>(src->range_max), range_limits[1]);
     const auto src_angular_min = static_cast<double>(src->angle_min);
     const auto src_angular_max = static_cast<double>(src->angle_max);
     const auto &src_ranges         = src->ranges;
