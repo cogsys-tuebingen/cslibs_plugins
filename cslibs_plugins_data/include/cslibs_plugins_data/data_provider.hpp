@@ -67,6 +67,34 @@ public:
         data_received_.disable();
     }
 
+    /**
+     * Test if publisher has a certain type.
+     */
+    template<typename T>
+    bool isType() const
+    {
+        const T *t = dynamic_cast<const T*>(this);
+        return t != nullptr;
+    }
+
+    /**
+     * Helper method for casting providers.
+     */
+    template<typename T>
+    T const & as() const
+    {
+        return dynamic_cast<const T&>(*this);
+    }
+
+    /**
+     * Helper method for casting providers.
+     */
+    template<typename T>
+    T & as()
+    {
+        return dynamic_cast<T&>(*this);
+    }
+
 protected:
     signal_t                                data_received_;
 
