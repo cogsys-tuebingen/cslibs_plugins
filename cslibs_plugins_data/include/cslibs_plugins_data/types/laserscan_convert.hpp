@@ -65,7 +65,7 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
     dst = create(src, src->header.frame_id, dst_linear_interval, dst_angular_interval, enforce_stamp);
 
     auto in_linear_interval = [&dst_linear_interval](const double range) {
-        return range >= dst_linear_interval[0] && range <= dst_linear_interval[1];
+        return range > dst_linear_interval[0] && range < dst_linear_interval[1];
     };
     auto in_angular_interval = [&dst_angular_interval](const double angle) {
         return angle >= dst_angular_interval[0] && angle <= dst_angular_interval[1];
@@ -107,7 +107,7 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr     &src,
     dst = create(src, tf_target_frame, dst_linear_interval, dst_angular_interval, enforce_stamp);
 
     auto in_linear_interval = [&dst_linear_interval](const double range) {
-        return range >= dst_linear_interval[0] && range <= dst_linear_interval[1];
+        return range > dst_linear_interval[0] && range < dst_linear_interval[1];
     };
     auto in_angular_interval = [&dst_angular_interval](const double angle) {
         return angle >= dst_angular_interval[0] && angle <= dst_angular_interval[1];
@@ -160,7 +160,7 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
     dst = create(src, src->header.frame_id, dst_linear_interval, dst_angular_interval);
 
     auto in_linear_interval = [&dst_linear_interval](const double range) {
-        return range >= dst_linear_interval[0] && range <= dst_linear_interval[1];
+        return range > dst_linear_interval[0] && range < dst_linear_interval[1];
     };
     auto in_angular_interval = [&dst_angular_interval](const double angle) {
         return angle >= dst_angular_interval[0] && angle <= dst_angular_interval[1];
