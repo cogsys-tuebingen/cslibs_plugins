@@ -21,13 +21,13 @@ inline typename Laserscan<T>::Ptr create(const sensor_msgs::LaserScanConstPtr &s
 {
     const ros::Time start_stamp = src->header.stamp;
     if (enforce_stamp) {
-      const  Laserscan::time_frame_t time_frame(start_stamp.toNSec(), start_stamp.toNSec());
-      return Laserscan::Ptr (new Laserscan(frame_id,
-                                           time_frame,
-                                           linear_interval,
-                                           angular_interval,
-                                           cslibs_time::Time(std::max(start_stamp.toNSec(),
-                                                                      ros::Time::now().toNSec()))));
+        const  typename Laserscan<T>::time_frame_t time_frame(start_stamp.toNSec(), start_stamp.toNSec());
+        return typename Laserscan<T>::Ptr (new Laserscan<T>(frame_id,
+                                                            time_frame,
+                                                            linear_interval,
+                                                            angular_interval,
+                                                            cslibs_time::Time(std::max(start_stamp.toNSec(),
+                                                                                       ros::Time::now().toNSec()))));
     }
 
     ros::Duration delta_stamp = ros::Duration(src->time_increment) * static_cast<double>(src->ranges.size());
@@ -37,13 +37,13 @@ inline typename Laserscan<T>::Ptr create(const sensor_msgs::LaserScanConstPtr &s
     const uint64_t start_time = start_stamp.toNSec();
     const uint64_t end_time   = start_time + delta_stamp.toNSec();
 
-    const  Laserscan::time_frame_t time_frame(start_time, end_time);
-    return typename Laserscan::Ptr (new Laserscan(frame_id,
-                                                  time_frame,
-                                                  linear_interval,
-                                                  angular_interval,
-                                                  cslibs_time::Time(std::max(end_time,
-                                                                             ros::Time::now().toNSec()))));
+    const  typename Laserscan<T>::time_frame_t time_frame(start_time, end_time);
+    return typename Laserscan<T>::Ptr (new Laserscan<T>(frame_id,
+                                                        time_frame,
+                                                        linear_interval,
+                                                        angular_interval,
+                                                        cslibs_time::Time(std::max(end_time,
+                                                                                   ros::Time::now().toNSec()))));
 }
 
 template <typename T>
@@ -86,13 +86,13 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
 }
 
 template <typename T>
-inline bool convert(const sensor_msgs::LaserScanConstPtr     &src,
-                    cslibs_math_ros::tf::TFProvider<T>::Ptr  &tf_listener,
-                    const std::string                        &tf_target_frame,
-                    const ros::Duration                      &tf_timeout,
-                    const interval_t<T>                      &range_limits,
-                    typename Laserscan<T>::Ptr               &dst,
-                    const bool                                enforce_stamp)
+inline bool convert(const sensor_msgs::LaserScanConstPtr  &src,
+                    cslibs_math_ros::tf::TFProvider::Ptr  &tf_listener,
+                    const std::string                     &tf_target_frame,
+                    const ros::Duration                   &tf_timeout,
+                    const interval_t<T>                   &range_limits,
+                    typename Laserscan<T>::Ptr            &dst,
+                    const bool                             enforce_stamp)
 {
     const auto src_linear_min  = std::max(static_cast<T>(src->range_min), range_limits[0]);
     const auto src_linear_max  = std::min(static_cast<T>(src->range_max), range_limits[1]);
@@ -104,8 +104,8 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr     &src,
     if (src_ranges.size() == 0ul)
         return false;
 
-    const interval_t dst_linear_interval  = { src_linear_min,  src_linear_max };
-    const interval_t dst_angular_interval = { src_angular_min, src_angular_max };
+    const interval_t<T> dst_linear_interval  = { src_linear_min,  src_linear_max };
+    const interval_t<T> dst_angular_interval = { src_angular_min, src_angular_max };
     dst = create(src, tf_target_frame, dst_linear_interval, dst_angular_interval, enforce_stamp);
 
     auto in_linear_interval = [&dst_linear_interval](const T range) {
@@ -142,11 +142,11 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr     &src,
 }
 
 template <typename T>
-inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr     &src,
-                               cslibs_math_ros::tf::TFProvider<T>::Ptr  &tf_listener,
-                               const std::string                        &fixed_frame,
-                               const ros::Duration                      &tf_timeout,
-                               typename Laserscan<T>::Ptr               &dst)
+inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr  &src,
+                               cslibs_math_ros::tf::TFProvider::Ptr  &tf_listener,
+                               const std::string                     &fixed_frame,
+                               const ros::Duration                   &tf_timeout,
+                               typename Laserscan<T>::Ptr            &dst)
 {
     const auto src_linear_min  = static_cast<T>(src->range_min);
     const auto src_linear_max  = static_cast<T>(src->range_max);
