@@ -34,7 +34,7 @@ protected:
                                                                                    cslibs_math_ros::sensor_msgs::conversion_3d::from(msg),
                                                                                    cslibs_time::Time(std::max(msg->header.stamp.toNSec(), ros::Time::now().toNSec()))));
 
-        cslibs_math_ros::sensor_msgs::conversion_3d::from(msg, pointcloud->points());
+        cslibs_math_ros::sensor_msgs::conversion_3d::from<T>(msg, pointcloud->points());
         data_received_(pointcloud);
 
         time_of_last_measurement_ = msg->header.stamp;
