@@ -30,7 +30,7 @@ protected:
                                              tf::getYaw(msg->pose.pose.orientation));
         };
 
-        types::Odometry2D::Ptr odometry;
+        typename types::Odometry2D<T>::Ptr odometry;
         if (last_msg_) {
             cslibs_time::TimeFrame time_frame(last_msg_->header.stamp.toNSec(),
                                               msg->header.stamp.toNSec());
@@ -61,7 +61,7 @@ protected:
 
         const int queue_size = nh.param<int>(param_name("queue_size"), 1);
         topic_ = nh.param<std::string>(param_name("topic"), "/odom");
-        source_= nh.subscribe(topic_, queue_size, &Odometry2DProvider::callback, this);
+        source_= nh.subscribe(topic_, queue_size, &Odometry2DProviderBase::callback, this);
     }
 };
 

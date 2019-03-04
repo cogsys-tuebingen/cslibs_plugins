@@ -21,6 +21,7 @@ public:
     using callback_t    = cslibs_utility::common::delegate<void(const Data::ConstPtr&)>;
     using signal_t      = cslibs_utility::signals::Signal<callback_t>;
     using connection_t  = signal_t::Connection;
+    using tf_provider_t = cslibs_math_ros::tf::TFProvider;
 
     DataProvider() = default;
     virtual ~DataProvider() = default;
@@ -30,7 +31,15 @@ public:
         return "cslibs_plugins_data::DataProvider";
     }
 
-    virtual inline void doSetup(ros::NodeHandle &nh) = 0;
+    inline void setup(const typename tf_provider_t::Ptr &tf,
+                      ros::NodeHandle &nh)
+    {
+        auto param_name = [this](const std::string &name){ return name_ + "/" + name; };
+
+        tf_         = tf;
+        tf_timeout_ = ros::Duration(nh.param<double>(param_name("tf_timeout"), 0.1));
+        doSetup(nh);
+    }
 
      /**
      * @brief Connect to data provider. Callback will be executed as
@@ -89,6 +98,11 @@ public:
 
 protected:
     signal_t                    data_received_;
+
+    typename tf_provider_t::Ptr tf_;
+    ros::Duration               tf_timeout_;
+
+    virtual void doSetup(ros::NodeHandle &nh) = 0;
 };
 }
 

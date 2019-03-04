@@ -38,14 +38,39 @@ public:
         }
     }
 
-    inline void doSetup(const typename tf_provider_t::Ptr &tf,
-                        ros::NodeHandle &nh)
-    {
-        auto param_name = [this](const std::string &name){ return name_ + "/" + name; };
+protected:
+    std::string      odom_frame_;
+    std::string      base_frame_;
 
-        tf_         = tf;
-        tf_timeout_ = ros::Duration(nh.param<double>(param_name("tf_timeout"), 0.1));
-        doSetup(nh);
+    stamped_t        o_T_b1_;
+    bool             initialized_;
+    ros::Rate        rate_;
+    std::atomic_bool running_;
+    std::atomic_bool stop_;
+    std::thread      worker_thread_;
+
+    void loop()
+    {
+        running_ = true;
+        while (!stop_) {
+            const ros::Time now = ros::Time::now();
+            stamped_t o_T_b2(cslibs_math_2d::Transform2d<T>(), cslibs_time::Time(now.toNSec()).time());
+            if (tf_->lookupTransform(odom_frame_, base_frame_, now, o_T_b2, tf_timeout_)) {
+                if (initialized_) {
+                    cslibs_time::TimeFrame time_frame(o_T_b1_.stamp(), o_T_b2.stamp());
+                    typename types::Odometry2D<T>::Ptr odometry(new types::Odometry2D<T>(odom_frame_,
+                                                                                         time_frame,
+                                                                                         o_T_b1_.data(),
+                                                                                         o_T_b2.data(),
+                                                                                         cslibs_time::Time(ros::Time::now().toNSec())));
+                    data_received_(odometry);
+                } else
+                    initialized_ = true;
+                o_T_b1_ = o_T_b2;
+            }
+            rate_.sleep();
+        }
+        running_ = false;
     }
 
     virtual inline void doSetup(ros::NodeHandle &nh) override
@@ -60,47 +85,6 @@ public:
             /// fire up the thread
             worker_thread_ = std::thread([this](){ loop();} );
         }
-
-        if (!tf_)
-            tf_.reset(new tf_provider_t);
-    }
-
-protected:
-    std::string      odom_frame_;
-    std::string      base_frame_;
-
-    stamped_t        o_T_b1_;
-    bool             initialized_;
-    ros::Rate        rate_;
-    std::atomic_bool running_;
-    std::atomic_bool stop_;
-    std::thread      worker_thread_;
-
-    typename tf_provider_t::Ptr tf_;
-    ros::Duration               tf_timeout_;
-
-    void loop()
-    {
-        running_ = true;
-        while (!stop_) {
-            const ros::Time now = ros::Time::now();
-            stamped_t o_T_b2(cslibs_math_2d::Transform2d<T>(), cslibs_time::Time(now.toNSec()).time());
-            if (tf_.lookupTransform(odom_frame_, base_frame_, now, o_T_b2, tf_timeout_)) {
-                if (initialized_) {
-                    cslibs_time::TimeFrame time_frame(o_T_b1_.stamp(), o_T_b2.stamp());
-                    types::Odometry2D<T>::Ptr odometry(new types::Odometry2D<T>(odom_frame_,
-                                                                                time_frame,
-                                                                                o_T_b1_.data(),
-                                                                                o_T_b2.data(),
-                                                                                cslibs_time::Time(ros::Time::now().toNSec())));
-                    data_received_(odometry);
-                } else
-                    initialized_ = true;
-                o_T_b1_ = o_T_b2;
-            }
-            rate_.sleep();
-        }
-        running_ = false;
     }
 };
 

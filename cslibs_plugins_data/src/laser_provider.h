@@ -55,7 +55,7 @@ protected:
         const int queue_size        = nh.param<int>(param_name("queue_size"), 1);
 
         topic_                      = nh.param<std::string>(param_name("topic"), "/scan");
-        source_                     = nh.subscribe(topic_, queue_size, &LaserProvider::callback, this);
+        source_                     = nh.subscribe(topic_, queue_size, &LaserProviderBase::callback, this);
 
         enforce_stamp_              = nh.param<bool>(param_name("enforce_stamp"), true);
 

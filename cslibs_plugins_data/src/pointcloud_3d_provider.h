@@ -39,13 +39,14 @@ protected:
 
         time_of_last_measurement_ = msg->header.stamp;
     }
+
     virtual void doSetup(ros::NodeHandle &nh) override
     {
         auto param_name = [this](const std::string &name){return name_ + "/" + name;};
 
         int queue_size  = nh.param<int>(param_name("queue_size"), 1);
         topic_          = nh.param<std::string>(param_name("topic"), "");
-        source_         = nh.subscribe(topic_, queue_size, &Pointcloud3dProvider::callback, this);
+        source_         = nh.subscribe(topic_, queue_size, &Pointcloud3dProviderBase::callback, this);
 
         double rate     = nh.param<double>(param_name("rate"), 0.0);
         if (rate > 0.0) {
