@@ -32,7 +32,7 @@ protected:
     bool                    transform_;
     std::string             transform_to_frame_;
 
-    std::array<float, 2>    range_limits_;
+    std::array<T, 2>        range_limits_;
 
     virtual void callback(const sensor_msgs::LaserScanConstPtr &msg)
     {
@@ -62,8 +62,8 @@ protected:
         transform_                  = nh.param<bool>(param_name("transform"), true);
         transform_to_frame_         = nh.param<std::string>(param_name("transform_to_frame"), "base_link");
 
-        range_limits_               = {nh.param<double>(param_name("range_min"), 0.0),
-                                       nh.param<double>(param_name("range_max"), std::numeric_limits<double>::max())};
+        range_limits_               = {static_cast<T>(nh.param<double>(param_name("range_min"), 0.0)),
+                                       static_cast<T>(nh.param<double>(param_name("range_max"), std::numeric_limits<double>::max()))};
 
         double rate                 = nh.param<double>(param_name("rate"), 0.0);
         if (rate > 0.0) {
