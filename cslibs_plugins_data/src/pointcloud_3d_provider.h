@@ -8,14 +8,14 @@
 
 namespace cslibs_plugins_data {
 template <typename T>
-class Pointcloud3dProvider : public DataProvider
+class Pointcloud3dProviderBase : public DataProvider
 {
 public:
-    Pointcloud3dProvider() :
+    Pointcloud3dProviderBase() :
         time_offset_(0.0)
     {
     }
-    virtual ~Pointcloud3dProvider() = default;
+    virtual ~Pointcloud3dProviderBase() = default;
 
 protected:
     ros::Subscriber source_;                    /// the subscriber to be used
@@ -55,8 +55,9 @@ protected:
     }
 };
 
-using Pointcloud3dProviderDouble = Pointcloud3dProvider<double>;
-using Pointcloud3dProviderFloat  = Pointcloud3dProvider<float>;
+using Pointcloud3dProvider       = Pointcloud3dProviderBase<double>; // for backwards compatibility
+using Pointcloud3dProviderDouble = Pointcloud3dProviderBase<double>;
+using Pointcloud3dProviderFloat  = Pointcloud3dProviderBase<float>;
 }
 
 #endif // CSLIBS_PLUGINS_DATA_POINTCLOUD_PROVIDER_2D_H

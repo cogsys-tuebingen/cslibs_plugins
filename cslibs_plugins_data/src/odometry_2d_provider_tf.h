@@ -12,7 +12,7 @@
 
 namespace cslibs_plugins_data {
 template <typename T>
-class EIGEN_ALIGN16 Odometry2DProviderTF : public DataProvider
+class EIGEN_ALIGN16 Odometry2DProviderTFBase : public DataProvider
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -20,7 +20,7 @@ public:
     using stamped_t     = cslibs_time::Stamped<cslibs_math_2d::Transform2d<T>>;
     using tf_provider_t = cslibs_math_ros::tf::TFProvider<T>;
 
-    Odometry2DProviderTF() :
+    Odometry2DProviderTFBase() :
         o_T_b1_(cslibs_math_2d::Transform2d<T>(), cslibs_time::Time(ros::Time::now().toNSec()).time()),
         initialized_(false),
         rate_(60.0),
@@ -29,7 +29,7 @@ public:
     {
     }
 
-    virtual ~Odometry2DProviderTF()
+    virtual ~Odometry2DProviderTFBase()
     {
         if( running_) {
             stop_ = true;
@@ -84,7 +84,7 @@ protected:
         running_ = true;
         while (!stop_) {
             const ros::Time now = ros::Time::now();
-            stamped_t o_T_b2(cslibs_math_2d::Transform2d(), cslibs_time::Time(now.toNSec()).time());
+            stamped_t o_T_b2(cslibs_math_2d::Transform2d<T>(), cslibs_time::Time(now.toNSec()).time());
             if (tf_.lookupTransform(odom_frame_, base_frame_, now, o_T_b2, tf_timeout_)) {
                 if (initialized_) {
                     cslibs_time::TimeFrame time_frame(o_T_b1_.stamp(), o_T_b2.stamp());
@@ -104,8 +104,9 @@ protected:
     }
 };
 
-using Odometry2DProviderTFDouble = Odometry2DProviderTF<double>;
-using Odometry2DProviderTFFloat  = Odometry2DProviderTF<float>;
+using Odometry2DProviderTF       = Odometry2DProviderTFBase<double>; // for backwards compatibility
+using Odometry2DProviderTFDouble = Odometry2DProviderTFBase<double>;
+using Odometry2DProviderTFFloat  = Odometry2DProviderTFBase<float>;
 }
 
 #endif // CSLIBS_PLUGINS_DATA_ODOMETRY_2D_PROVIDER_TF_H

@@ -10,11 +10,11 @@
 
 namespace cslibs_plugins_data {
 template <typename T>
-class Odometry2DProvider : public DataProvider
+class Odometry2DProviderBase : public DataProvider
 {
 public:
-    Odometry2DProvider() = default;
-    virtual ~Odometry2DProvider() = default;
+    Odometry2DProviderBase() = default;
+    virtual ~Odometry2DProviderBase() = default;
 
 protected:
     ros::Subscriber source_;
@@ -65,8 +65,9 @@ protected:
     }
 };
 
-using Odometry2DProviderDouble = Odometry2DProvider<double>;
-using Odometry2DProviderFloat  = Odometry2DProvider<float>;
+using Odometry2DProvider       = Odometry2DProviderBase<double>; // for backwards compatibility
+using Odometry2DProviderDouble = Odometry2DProviderBase<double>;
+using Odometry2DProviderFloat  = Odometry2DProviderBase<float>;
 }
 
 #endif // CSLIBS_PLUGINS_DATA_ODOMETRY_2D_PROVIDER_2D_H

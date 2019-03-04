@@ -10,16 +10,16 @@
 
 namespace cslibs_plugins_data {
 template <typename T>
-class LaserProvider : public DataProvider
+class LaserProviderBase : public DataProvider
 {
 public:
     using point_t = cslibs_math_2d::Point2d<T>;
 
-    LaserProvider() :
+    LaserProviderBase() :
         time_offset_(0.0)
     {
     }
-    virtual ~LaserProvider() = default;
+    virtual ~LaserProviderBase() = default;
 
 protected:
     ros::Subscriber         source_;                    /// the subscriber to be used
@@ -73,8 +73,9 @@ protected:
     }
 };
 
-using LaserProviderDouble = LaserProvider<double>;
-using LaserProviderFloat  = LaserProvider<float>;
+using LaserProvider       = LaserProviderBase<double>; // for backwards compatibility
+using LaserProviderDouble = LaserProviderBase<double>;
+using LaserProviderFloat  = LaserProviderBase<float>;
 }
 
 #endif // CSLIBS_PLUGINS_DATA_LASER_PROVIDER_H
