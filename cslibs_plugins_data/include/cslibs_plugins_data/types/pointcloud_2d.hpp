@@ -8,11 +8,12 @@
 
 namespace cslibs_plugins_data {
 namespace types {
+template <typename T>
 class Pointcloud2d : public Data
 {
 public:
-    using Ptr     = std::shared_ptr<Pointcloud2d>;
-    using cloud_t = cslibs_math_2d::Pointcloud2d;
+    using Ptr     = std::shared_ptr<Pointcloud2d<T>>;
+    using cloud_t = cslibs_math_2d::Pointcloud2d<T>;
 
     Pointcloud2d(const std::string &frame_id) :
         Data(frame_id)

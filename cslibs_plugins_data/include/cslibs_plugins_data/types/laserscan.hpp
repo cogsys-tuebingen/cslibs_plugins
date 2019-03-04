@@ -11,15 +11,16 @@
 
 namespace cslibs_plugins_data {
 namespace types {
+template <typename T>
 class EIGEN_ALIGN16 Laserscan : public Data
 {
-public:
-    using point_t       = cslibs_math_2d::Point2d;
-    using time_frame_t  = cslibs_time::TimeFrame;
-    using interval_t    = std::array<double, 2>;
-    using allocator_t   = Eigen::aligned_allocator<Laserscan>;
-
+public:    
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    using allocator_t   = Eigen::aligned_allocator<Laserscan<T>>;
+
+    using point_t       = cslibs_math_2d::Point2d<T>;
+    using time_frame_t  = cslibs_time::TimeFrame;
+    using interval_t    = std::array<T, 2>;
 
     /**
      * @brief The Ray struct represents a scan ray with start point, end point, angle and range.
@@ -30,8 +31,8 @@ public:
 
         using allocator_t = Eigen::aligned_allocator<Ray>;
 
-        const double  angle;
-        const double  range;
+        const T       angle;
+        const T       range;
         const point_t end_point;
         const point_t start_point;
 
@@ -41,8 +42,8 @@ public:
          * @param range         - ray range
          * @param start_point   - the point the ray originates from
          */
-        inline Ray(const double angle,
-                   const double range,
+        inline Ray(const T       angle,
+                   const T       range,
                    const point_t start_point = point_t()) :
             angle(angle),
             range(range),
@@ -73,8 +74,8 @@ public:
          * @param end_point     - the point the ray is ending at
          * @param start_point   - the point the ray originates from
          */
-        inline Ray(const double angle,
-                   const double range,
+        inline Ray(const T       angle,
+                   const T       range,
                    const point_t &end_point,
                    const point_t &start_point) :
                    angle(angle),
@@ -130,8 +131,8 @@ public:
 
     };
 
-    using Ptr              = std::shared_ptr<Laserscan>;
-    using ConstPtr         = std::shared_ptr<const Laserscan>;
+    using Ptr              = std::shared_ptr<Laserscan<T>>;
+    using ConstPtr         = std::shared_ptr<const Laserscan<T>>;
     using rays_t           = std::vector<Ray, Ray::allocator_t>;
     using const_iterator_t = rays_t::const_iterator;
 
@@ -139,7 +140,7 @@ public:
               const time_frame_t       &time_frame,
               const cslibs_time::Time  &time_received) :
         Data(frame, time_frame, time_received),
-        linear_interval_{0.0, std::numeric_limits<double>::max()},
+        linear_interval_{0.0, std::numeric_limits<T>::max()},
         angular_interval_{-M_PI, M_PI}
     {
     }
@@ -155,8 +156,8 @@ public:
     {
     }
 
-    inline void setLinearInterval(const double min,
-                                  const double max)
+    inline void setLinearInterval(const T min,
+                                  const T max)
     {
         linear_interval_[0] = min;
         linear_interval_[1] = max;
@@ -167,8 +168,8 @@ public:
         linear_interval_ = interval;
     }
 
-    inline void setAngularInterval(const double min,
-                                   const double max)
+    inline void setAngularInterval(const T min,
+                                   const T max)
     {
         angular_interval_[0] = min;
         angular_interval_[1] = max;
@@ -179,28 +180,28 @@ public:
         angular_interval_ = interval;
     }
 
-    inline double getLinearMin() const
+    inline T getLinearMin() const
     {
         return linear_interval_[0];
     }
 
-    inline double getLinearMax() const
+    inline T getLinearMax() const
     {
         return linear_interval_[1];
     }
 
-    inline double getAngularMin() const
+    inline T getAngularMin() const
     {
         return angular_interval_[0];
     }
 
-    inline double getAngularMax() const
+    inline T getAngularMax() const
     {
         return angular_interval_[1];
     }
 
-    inline void insert(const double angle,
-                       const double range,
+    inline void insert(const T       angle,
+                       const T       range,
                        const point_t &start_point = point_t())
     {
         rays_.emplace_back(Ray(angle, range, start_point));
@@ -212,8 +213,8 @@ public:
         rays_.emplace_back(Ray(end_point, start_point));
     }
 
-    inline void insert(const double angle,
-                       const double range,
+    inline void insert(const T       angle,
+                       const T       range,
                        const point_t &end_point,
                        const point_t &start_point = point_t())
     {

@@ -8,21 +8,23 @@
 
 namespace cslibs_plugins_data {
 namespace types {
+template <typename T>
 class EIGEN_ALIGN16 Odometry2D : public Data {
-public:
-    using Ptr          = std::shared_ptr<Odometry2D>;
-    using ConstPtr     = std::shared_ptr<const Odometry2D>;
+public:    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    using allocator_t = Eigen::aligned_allocator<Odometry2D<T>>;
+
+    using Ptr          = std::shared_ptr<Odometry2D<T>>;
+    using ConstPtr     = std::shared_ptr<const Odometry2D<T>>;
     using time_frame_t = cslibs_time::TimeFrame;
     using time_t       = cslibs_time::Time;
-
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
-    using allocator_t = Eigen::aligned_allocator<Odometry2D>;
+    using transform_t  = cslibs_math_2d::Transform2d<T>;
+    using vector_t     = cslibs_math_2d::Vector2d<T>;
 
     Odometry2D(const std::string &frame) :
       Data(frame),
-      start_pose_(cslibs_math_2d::Transform2d::identity()),
-      end_pose_(cslibs_math_2d::Transform2d::identity()),
+      start_pose_(transform_t::identity()),
+      end_pose_(transform_t::identity()),
       delta_linear_(0.0),
       delta_angular_(0.0),
       forward_(true)
@@ -33,19 +35,19 @@ public:
                const time_frame_t &time_frame,
                const time_t       &time_received) :
       Data(frame, time_frame, time_received),
-      start_pose_(cslibs_math_2d::Transform2d::identity()),
-      end_pose_(cslibs_math_2d::Transform2d::identity()),
+      start_pose_(transform_t::identity()),
+      end_pose_(transform_t::identity()),
       delta_linear_(0.0),
       delta_angular_(0.0),
       forward_(true)
     {
     }
 
-    Odometry2D(const std::string            &frame,
-               const time_frame_t           &time_frame,
-               const cslibs_math_2d::Pose2d &start,
-               const cslibs_math_2d::Pose2d &end,
-               const time_t                 &time_received) :
+    Odometry2D(const std::string  &frame,
+               const time_frame_t &time_frame,
+               const transform_t  &start,
+               const transform_t  &end,
+               const time_t       &time_received) :
       Data(frame, time_frame, time_received),
       start_pose_(start),
       end_pose_(end),
@@ -56,33 +58,33 @@ public:
     {
     }
 
-    inline double getDeltaAngularAbs() const
+    inline T getDeltaAngularAbs() const
     {
         return std::atan2(delta_lin_abs_(1),
                           delta_lin_abs_(0));
     }
 
-    const inline cslibs_math_2d::Pose2d& getStartPose() const
+    const inline transform_t& getStartPose() const
     {
         return start_pose_;
     }
 
-    const inline cslibs_math_2d::Pose2d& getEndPose() const
+    const inline transform_t& getEndPose() const
     {
         return end_pose_;
     }
 
-    const inline cslibs_math_2d::Vector2d& getDelta() const
+    const inline vector_t& getDelta() const
     {
         return delta_lin_abs_;
     }
 
-    inline double getDeltaLinear() const
+    inline T getDeltaLinear() const
     {
         return delta_linear_;
     }
 
-    inline double getDeltaAngular() const
+    inline T getDeltaAngular() const
     {
         return delta_angular_;
     }
@@ -111,7 +113,7 @@ public:
         auto do_split = [&split_time, &a, &b, this] () {
             const double ratio = (split_time - time_frame_.start).nanoseconds() / time_frame_.duration().nanoseconds();
 
-            cslibs_math_2d::Pose2d split_pose = start_pose_.interpolate(end_pose_, ratio);
+            transform_t split_pose = start_pose_.interpolate(end_pose_, ratio);
             a.reset(new Odometry2D(frame_, time_frame_t(time_frame_.start, split_time), start_pose_, split_pose, time_received_));
             b.reset(new Odometry2D(frame_, time_frame_t(split_time, time_frame_.end), split_pose, end_pose_, time_received_ + (split_time - time_frame_.start)));
 
@@ -122,12 +124,12 @@ public:
     }
 
 private:
-    cslibs_math_2d::Pose2d    start_pose_;
-    cslibs_math_2d::Pose2d    end_pose_;
-    cslibs_math_2d::Vector2d  delta_lin_abs_;
-    double                    delta_linear_;
-    double                    delta_angular_;
-    bool                      forward_;
+    transform_t start_pose_;
+    transform_t end_pose_;
+    vector_t    delta_lin_abs_;
+    T           delta_linear_;
+    T           delta_angular_;
+    bool        forward_;
 
 };
 }
