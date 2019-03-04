@@ -134,7 +134,8 @@ private:
 };
 }
 
-inline std::ostream & operator << (std::ostream &out, const cslibs_plugins_data::types::Odometry2D &odom)
+template <typename T>
+inline std::ostream & operator << (std::ostream &out, const cslibs_plugins_data::types::Odometry2D<T> &odom)
 {
     out << "[Odometry2D]: linear  " << odom.getDeltaLinear()  << "\n";
     out << "              angular " << odom.getDeltaAngular() << "\n";

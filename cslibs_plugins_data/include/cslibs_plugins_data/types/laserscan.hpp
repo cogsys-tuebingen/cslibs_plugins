@@ -26,9 +26,7 @@ public:
      * @brief The Ray struct represents a scan ray with start point, end point, angle and range.
      */
     struct EIGEN_ALIGN16 Ray {
-
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
         using allocator_t = Eigen::aligned_allocator<Ray>;
 
         const T       angle;
@@ -133,8 +131,8 @@ public:
 
     using Ptr              = std::shared_ptr<Laserscan<T>>;
     using ConstPtr         = std::shared_ptr<const Laserscan<T>>;
-    using rays_t           = std::vector<Ray, Ray::allocator_t>;
-    using const_iterator_t = rays_t::const_iterator;
+    using rays_t           = std::vector<Ray, typename Ray::allocator_t>;
+    using const_iterator_t = typename rays_t::const_iterator;
 
     Laserscan(const std::string          &frame,
               const time_frame_t       &time_frame,
