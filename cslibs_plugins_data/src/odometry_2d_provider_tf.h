@@ -18,7 +18,6 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     using stamped_t     = cslibs_time::Stamped<cslibs_math_2d::Transform2d<T>>;
-    using tf_provider_t = cslibs_math_ros::tf::TFProvider<T>;
 
     Odometry2DProviderTFBase() :
         o_T_b1_(cslibs_math_2d::Transform2d<T>(), cslibs_time::Time(ros::Time::now().toNSec()).time()),
