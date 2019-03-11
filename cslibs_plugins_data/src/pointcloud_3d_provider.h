@@ -56,9 +56,9 @@ protected:
     }
 };
 
-using Pointcloud3dProvider       = Pointcloud3dProviderBase<double>; // for backwards compatibility
-using Pointcloud3dProviderDouble = Pointcloud3dProviderBase<double>;
-using Pointcloud3dProviderFloat  = Pointcloud3dProviderBase<float>;
+using Pointcloud3dProvider   = Pointcloud3dProviderBase<double>; // for backwards compatibility
+using Pointcloud3dProvider_d = Pointcloud3dProviderBase<double>;
+using Pointcloud3dProvider_f = Pointcloud3dProviderBase<float>;
 }
 
 #endif // CSLIBS_PLUGINS_DATA_POINTCLOUD_PROVIDER_2D_H

@@ -65,9 +65,9 @@ protected:
     }
 };
 
-using Odometry2DProvider       = Odometry2DProviderBase<double>; // for backwards compatibility
-using Odometry2DProviderDouble = Odometry2DProviderBase<double>;
-using Odometry2DProviderFloat  = Odometry2DProviderBase<float>;
+using Odometry2DProvider   = Odometry2DProviderBase<double>; // for backwards compatibility
+using Odometry2DProvider_d = Odometry2DProviderBase<double>;
+using Odometry2DProvider_f = Odometry2DProviderBase<float>;
 }
 
 #endif // CSLIBS_PLUGINS_DATA_ODOMETRY_2D_PROVIDER_2D_H

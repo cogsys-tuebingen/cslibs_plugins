@@ -87,9 +87,9 @@ protected:
     }
 };
 
-using Odometry2DProviderTF       = Odometry2DProviderTFBase<double>; // for backwards compatibility
-using Odometry2DProviderTFDouble = Odometry2DProviderTFBase<double>;
-using Odometry2DProviderTFFloat  = Odometry2DProviderTFBase<float>;
+using Odometry2DProviderTF   = Odometry2DProviderTFBase<double>; // for backwards compatibility
+using Odometry2DProviderTF_d = Odometry2DProviderTFBase<double>;
+using Odometry2DProviderTF_f = Odometry2DProviderTFBase<float>;
 }
 
 #endif // CSLIBS_PLUGINS_DATA_ODOMETRY_2D_PROVIDER_TF_H

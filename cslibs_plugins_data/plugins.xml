@@ -3,37 +3,37 @@
    <class type="cslibs_plugins_data::LaserProvider" base_class_type="cslibs_plugins_data::DataProvider">
       <description>Provides 2D laserscans with the possibility to define a linear and angular FOV.</description>
    </class>
-   <class type="cslibs_plugins_data::LaserProviderDouble" base_class_type="cslibs_plugins_data::DataProvider">
+   <class type="cslibs_plugins_data::LaserProvider_d" base_class_type="cslibs_plugins_data::DataProvider">
       <description>Provides 2D laserscans with the possibility to define a linear and angular FOV.</description>
    </class>
-   <class type="cslibs_plugins_data::LaserProviderFloat" base_class_type="cslibs_plugins_data::DataProvider">
+   <class type="cslibs_plugins_data::LaserProvider_f" base_class_type="cslibs_plugins_data::DataProvider">
       <description>Provides 2D laserscans with the possibility to define a linear and angular FOV.</description>
    </class>
    <class type="cslibs_plugins_data::Pointcloud3dProvider" base_class_type="cslibs_plugins_data::DataProvider">
       <description>Provides 3D pointcloud data.</description>
    </class>
-   <class type="cslibs_plugins_data::Pointcloud3dProviderDouble" base_class_type="cslibs_plugins_data::DataProvider">
+   <class type="cslibs_plugins_data::Pointcloud3dProvider_d" base_class_type="cslibs_plugins_data::DataProvider">
       <description>Provides 3D pointcloud data.</description>
    </class>
-   <class type="cslibs_plugins_data::Pointcloud3dProviderFloat" base_class_type="cslibs_plugins_data::DataProvider">
+   <class type="cslibs_plugins_data::Pointcloud3dProvider_f" base_class_type="cslibs_plugins_data::DataProvider">
       <description>Provides 3D pointcloud data.</description>
    </class>
    <class type="cslibs_plugins_data::Odometry2DProvider" base_class_type="cslibs_plugins_data::DataProvider">
       <description>Provides 2D odometry for standard odmetry messages.</description>
    </class>
-   <class type="cslibs_plugins_data::Odometry2DProviderDouble" base_class_type="cslibs_plugins_data::DataProvider">
+   <class type="cslibs_plugins_data::Odometry2DProvider_d" base_class_type="cslibs_plugins_data::DataProvider">
       <description>Provides 2D odometry for standard odmetry messages.</description>
    </class>
-   <class type="cslibs_plugins_data::Odometry2DProviderFloat" base_class_type="cslibs_plugins_data::DataProvider">
+   <class type="cslibs_plugins_data::Odometry2DProvider_f" base_class_type="cslibs_plugins_data::DataProvider">
       <description>Provides 2D odometry for standard odmetry messages.</description>
    </class>
    <class type="cslibs_plugins_data::Odometry2DProviderTF" base_class_type="cslibs_plugins_data::DataProvider">
       <description>Provides 2D odometry for odometry input based on TF.</description>
    </class>
-   <class type="cslibs_plugins_data::Odometry2DProviderTFDouble" base_class_type="cslibs_plugins_data::DataProvider">
+   <class type="cslibs_plugins_data::Odometry2DProviderTF_d" base_class_type="cslibs_plugins_data::DataProvider">
       <description>Provides 2D odometry for odometry input based on TF.</description>
    </class>
-   <class type="cslibs_plugins_data::Odometry2DProviderTFFloat" base_class_type="cslibs_plugins_data::DataProvider">
+   <class type="cslibs_plugins_data::Odometry2DProviderTF_f" base_class_type="cslibs_plugins_data::DataProvider">
       <description>Provides 2D odometry for odometry input based on TF.</description>
    </class>
 

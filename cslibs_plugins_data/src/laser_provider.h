@@ -73,9 +73,9 @@ protected:
     }
 };
 
-using LaserProvider       = LaserProviderBase<double>; // for backwards compatibility
-using LaserProviderDouble = LaserProviderBase<double>;
-using LaserProviderFloat  = LaserProviderBase<float>;
+using LaserProvider   = LaserProviderBase<double>; // for backwards compatibility
+using LaserProvider_d = LaserProviderBase<double>;
+using LaserProvider_f = LaserProviderBase<float>;
 }
 
 #endif // CSLIBS_PLUGINS_DATA_LASER_PROVIDER_H
