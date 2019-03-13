@@ -13,7 +13,7 @@ template <typename T>
 class LaserProviderBase : public DataProvider
 {
 public:
-    using point_t = cslibs_math_2d::Point2d<T>;
+    using point_t = cslibs_math_2d::Point2<T>;
 
     LaserProviderBase() :
         time_offset_(0.0)
@@ -40,7 +40,7 @@ protected:
             if (msg->header.stamp <= (time_of_last_measurement_ + time_offset_))
                 return;
 
-        typename types::Laserscan<T>::Ptr laserscan;
+        typename types::Laserscan2<T>::Ptr laserscan;
         if (transform_ ? convert(msg, tf_, transform_to_frame_, tf_timeout_, range_limits_, laserscan, enforce_stamp_) :
                         convert(msg, range_limits_, laserscan, enforce_stamp_))
             data_received_(laserscan);

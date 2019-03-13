@@ -25,29 +25,29 @@ protected:
     void callback(const nav_msgs::OdometryConstPtr &msg)
     {
         auto to_pose = [](const nav_msgs::OdometryConstPtr &msg) {
-            return cslibs_math_2d::Pose2d<T>(msg->pose.pose.position.x,
+            return cslibs_math_2d::Pose2<T>(msg->pose.pose.position.x,
                                              msg->pose.pose.position.y,
                                              tf::getYaw(msg->pose.pose.orientation));
         };
 
-        typename types::Odometry2D<T>::Ptr odometry;
+        typename types::Odometry2<T>::Ptr odometry;
         if (last_msg_) {
             cslibs_time::TimeFrame time_frame(last_msg_->header.stamp.toNSec(),
                                               msg->header.stamp.toNSec());
-            odometry.reset(new types::Odometry2D<T>(msg->header.frame_id,
-                                                    time_frame,
-                                                    to_pose(last_msg_),
-                                                    to_pose(msg),
-                                                    cslibs_time::Time(std::max(msg->header.stamp.toNSec(),
+            odometry.reset(new types::Odometry2<T>(msg->header.frame_id,
+                                                   time_frame,
+                                                   to_pose(last_msg_),
+                                                   to_pose(msg),
+                                                   cslibs_time::Time(std::max(msg->header.stamp.toNSec(),
                                                                                ros::Time::now().toNSec()))));
         } else {
             cslibs_time::TimeFrame time_frame(msg->header.stamp.toNSec(),
                                               msg->header.stamp.toNSec());
-            odometry.reset(new types::Odometry2D<T>(msg->header.frame_id,
-                                                    time_frame,
-                                                    to_pose(msg),
-                                                    to_pose(msg),
-                                                    cslibs_time::Time(std::max(msg->header.stamp.toNSec(),
+            odometry.reset(new types::Odometry2<T>(msg->header.frame_id,
+                                                   time_frame,
+                                                   to_pose(msg),
+                                                   to_pose(msg),
+                                                   cslibs_time::Time(std::max(msg->header.stamp.toNSec(),
                                                                                ros::Time::now().toNSec()))));
         }
 

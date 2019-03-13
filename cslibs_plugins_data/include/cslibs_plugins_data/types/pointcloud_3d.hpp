@@ -9,18 +9,18 @@
 namespace cslibs_plugins_data {
 namespace types {
 template <typename T>
-class Pointcloud3d : public Data
+class Pointcloud3 : public Data
 {
 public:
-    using Ptr     = std::shared_ptr<Pointcloud3d<T>>;
-    using cloud_t = cslibs_math_3d::Pointcloud3d<T>;
+    using Ptr     = std::shared_ptr<Pointcloud3<T>>;
+    using cloud_t = cslibs_math_3d::Pointcloud3<T>;
 
-    Pointcloud3d(const std::string &frame_id) :
+    Pointcloud3(const std::string &frame_id) :
         Data(frame_id)
     {
     }
 
-    Pointcloud3d(const std::string      &frame,
+    Pointcloud3(const std::string      &frame,
          const cslibs_time::TimeFrame   &time_frame,
          const cslibs_time::Time        &time_received) :
         Data(frame, time_frame, time_received)
@@ -40,6 +40,8 @@ public:
 private:
     typename cloud_t::Ptr points_;
 };
+using Pointcloud3d = Pointcloud3<double>;
+using Pointcloud3f = Pointcloud3<float>;
 }
 }
 

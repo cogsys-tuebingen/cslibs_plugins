@@ -30,7 +30,7 @@ protected:
             if (msg->header.stamp <= (time_of_last_measurement_ + time_offset_))
                 return;
 
-        typename types::Pointcloud3d<T>::Ptr pointcloud(new types::Pointcloud3d<T>(msg->header.frame_id,
+        typename types::Pointcloud3<T>::Ptr pointcloud(new types::Pointcloud3<T>(msg->header.frame_id,
                                                                                    cslibs_math_ros::sensor_msgs::conversion_3d::from(msg),
                                                                                    cslibs_time::Time(std::max(msg->header.stamp.toNSec(), ros::Time::now().toNSec()))));
 

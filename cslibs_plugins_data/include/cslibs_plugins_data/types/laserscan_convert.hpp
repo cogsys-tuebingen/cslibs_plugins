@@ -13,7 +13,7 @@ template <typename T>
 using interval_t = std::array<T, 2>;
 
 template <typename T>
-inline typename Laserscan<T>::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
+inline typename Laserscan2<T>::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
                                          const std::string                    &frame_id,
                                          const interval_t<T>                  &linear_interval,
                                          const interval_t<T>                  &angular_interval,
@@ -21,8 +21,8 @@ inline typename Laserscan<T>::Ptr create(const sensor_msgs::LaserScanConstPtr &s
 {
     const ros::Time start_stamp = src->header.stamp;
     if (enforce_stamp) {
-        const  typename Laserscan<T>::time_frame_t time_frame(start_stamp.toNSec(), start_stamp.toNSec());
-        return typename Laserscan<T>::Ptr (new Laserscan<T>(frame_id,
+        const  typename Laserscan2<T>::time_frame_t time_frame(start_stamp.toNSec(), start_stamp.toNSec());
+        return typename Laserscan2<T>::Ptr (new Laserscan2<T>(frame_id,
                                                             time_frame,
                                                             linear_interval,
                                                             angular_interval,
@@ -37,8 +37,8 @@ inline typename Laserscan<T>::Ptr create(const sensor_msgs::LaserScanConstPtr &s
     const uint64_t start_time = start_stamp.toNSec();
     const uint64_t end_time   = start_time + delta_stamp.toNSec();
 
-    const  typename Laserscan<T>::time_frame_t time_frame(start_time, end_time);
-    return typename Laserscan<T>::Ptr (new Laserscan<T>(frame_id,
+    const  typename Laserscan2<T>::time_frame_t time_frame(start_time, end_time);
+    return typename Laserscan2<T>::Ptr (new Laserscan2<T>(frame_id,
                                                         time_frame,
                                                         linear_interval,
                                                         angular_interval,
@@ -49,7 +49,7 @@ inline typename Laserscan<T>::Ptr create(const sensor_msgs::LaserScanConstPtr &s
 template <typename T>
 inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
                     const interval_t<T>                  &range_limits,
-                    typename Laserscan<T>::Ptr           &dst,
+                    typename Laserscan2<T>::Ptr           &dst,
                     const bool                            enforce_stamp)
 {
     const auto src_linear_min  = std::max(static_cast<T>(src->range_min), range_limits[0]);
@@ -91,7 +91,7 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr  &src,
                     const std::string                     &tf_target_frame,
                     const ros::Duration                   &tf_timeout,
                     const interval_t<T>                   &range_limits,
-                    typename Laserscan<T>::Ptr            &dst,
+                    typename Laserscan2<T>::Ptr            &dst,
                     const bool                             enforce_stamp)
 {
     const auto src_linear_min  = std::max(static_cast<T>(src->range_min), range_limits[0]);
@@ -115,16 +115,16 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr  &src,
         return angle >= dst_angular_interval[0] && angle <= dst_angular_interval[1];
     };
 
-    cslibs_math_3d::Transform3d<T> t_T_l;
+    cslibs_math_3d::Transform3<T> t_T_l;
     if(tf_listener->lookupTransform(tf_target_frame, src->header.frame_id, src->header.stamp, t_T_l, tf_timeout)) {
-        const cslibs_math_2d::Point2d<T> start_point(t_T_l.tx(), t_T_l.ty());
+        const cslibs_math_2d::Point2<T> start_point(t_T_l.tx(), t_T_l.ty());
         auto angle = src_angular_min;
         for (const auto range : src_ranges) {
             if(in_linear_interval(range) && in_angular_interval(angle)) {
-                const cslibs_math_3d::Point3d<T> p = t_T_l * cslibs_math_3d::Point3d<T>(std::cos(angle) * range,
+                const cslibs_math_3d::Point3<T> p = t_T_l * cslibs_math_3d::Point3<T>(std::cos(angle) * range,
                                                                                         std::sin(angle) * range,
                                                                                         0.0);
-                const cslibs_math_2d::Point2d<T> end_point(p(0), p(1));
+                const cslibs_math_2d::Point2<T> end_point(p(0), p(1));
 
                 const T transformed_angle = cslibs_math_2d::angle(end_point - start_point);
                 const T range = cslibs_math::linear::distance(start_point, end_point);
@@ -146,7 +146,7 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr  &src,
                                cslibs_math_ros::tf::TFProvider::Ptr  &tf_listener,
                                const std::string                     &fixed_frame,
                                const ros::Duration                   &tf_timeout,
-                               typename Laserscan<T>::Ptr            &dst)
+                               typename Laserscan2<T>::Ptr            &dst)
 {
     const auto src_linear_min  = static_cast<T>(src->range_min);
     const auto src_linear_max  = static_cast<T>(src->range_max);
@@ -177,7 +177,7 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr  &src,
     const ros::Time end_stamp = start_stamp + delta_stamp * src_ranges.size();
 
 
-    cslibs_math_2d::Transform2d<T> cs_start_T_end;
+    cslibs_math_2d::Transform2<T> cs_start_T_end;
     if (!tf_listener->lookupTransform(fixed_frame, dst->frame(), end_stamp, cs_start_T_end, tf_timeout))
         return false;
     tf::Transform start_T_end = cslibs_math_ros::tf::conversion_2d::from(cs_start_T_end);
@@ -191,11 +191,11 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr  &src,
     auto stamp = start_stamp;
     for (const auto range : src_ranges) {
         if (in_linear_interval(range) && in_angular_interval(angle)) {
-            cslibs_math_2d::Transform2d<T> cs_start_T_stamp;
+            cslibs_math_2d::Transform2<T> cs_start_T_stamp;
             tf_listener->lookupTransform(fixed_frame, dst->frame(), stamp, cs_start_T_stamp);
             tf::Transform end_T_stamp = end_T_start * cslibs_math_ros::tf::conversion_2d::from(cs_start_T_stamp);
             tf::Point pt = end_T_stamp * tf::Point(std::cos(angle) * range, std::sin(angle) * range, 0.0);
-            dst->insert(cslibs_math_2d::Point2d<T>(pt.x(), pt.y()));
+            dst->insert(cslibs_math_2d::Point2<T>(pt.x(), pt.y()));
         } else
             dst->insertInvalid();
 

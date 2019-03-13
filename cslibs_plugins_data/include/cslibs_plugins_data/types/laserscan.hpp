@@ -12,13 +12,13 @@
 namespace cslibs_plugins_data {
 namespace types {
 template <typename T>
-class EIGEN_ALIGN16 Laserscan : public Data
+class EIGEN_ALIGN16 Laserscan2 : public Data
 {
 public:    
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    using allocator_t   = Eigen::aligned_allocator<Laserscan<T>>;
+    using allocator_t   = Eigen::aligned_allocator<Laserscan2<T>>;
 
-    using point_t       = cslibs_math_2d::Point2d<T>;
+    using point_t       = cslibs_math_2d::Point2<T>;
     using time_frame_t  = cslibs_time::TimeFrame;
     using interval_t    = std::array<T, 2>;
 
@@ -129,12 +129,12 @@ public:
 
     };
 
-    using Ptr              = std::shared_ptr<Laserscan<T>>;
-    using ConstPtr         = std::shared_ptr<const Laserscan<T>>;
+    using Ptr              = std::shared_ptr<Laserscan2<T>>;
+    using ConstPtr         = std::shared_ptr<const Laserscan2<T>>;
     using rays_t           = std::vector<Ray, typename Ray::allocator_t>;
     using const_iterator_t = typename rays_t::const_iterator;
 
-    Laserscan(const std::string          &frame,
+    Laserscan2(const std::string          &frame,
               const time_frame_t       &time_frame,
               const cslibs_time::Time  &time_received) :
         Data(frame, time_frame, time_received),
@@ -143,7 +143,7 @@ public:
     {
     }
 
-    Laserscan(const std::string        &frame,
+    Laserscan2(const std::string        &frame,
               const time_frame_t       &time_frame,
               const interval_t         &linear_interval,
               const interval_t         &angular_interval,
@@ -244,6 +244,9 @@ private:
     interval_t linear_interval_;
     interval_t angular_interval_;
 };
+
+using Laserscan2d = Laserscan2<double>;
+using Laserscan2f = Laserscan2<float>;
 }
 }
 

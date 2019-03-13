@@ -9,19 +9,19 @@
 namespace cslibs_plugins_data {
 namespace types {
 template <typename T>
-class EIGEN_ALIGN16 Odometry2D : public Data {
+class EIGEN_ALIGN16 Odometry2 : public Data {
 public:    
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    using allocator_t = Eigen::aligned_allocator<Odometry2D<T>>;
+    using allocator_t = Eigen::aligned_allocator<Odometry2<T>>;
 
-    using Ptr          = std::shared_ptr<Odometry2D<T>>;
-    using ConstPtr     = std::shared_ptr<const Odometry2D<T>>;
+    using Ptr          = std::shared_ptr<Odometry2<T>>;
+    using ConstPtr     = std::shared_ptr<const Odometry2<T>>;
     using time_frame_t = cslibs_time::TimeFrame;
     using time_t       = cslibs_time::Time;
-    using transform_t  = cslibs_math_2d::Transform2d<T>;
-    using vector_t     = cslibs_math_2d::Vector2d<T>;
+    using transform_t  = cslibs_math_2d::Transform2<T>;
+    using vector_t     = cslibs_math_2d::Vector2<T>;
 
-    Odometry2D(const std::string &frame) :
+    Odometry2(const std::string &frame) :
       Data(frame),
       start_pose_(transform_t::identity()),
       end_pose_(transform_t::identity()),
@@ -31,9 +31,9 @@ public:
     {
     }
 
-    Odometry2D(const std::string  &frame,
-               const time_frame_t &time_frame,
-               const time_t       &time_received) :
+    Odometry2(const std::string  &frame,
+              const time_frame_t &time_frame,
+              const time_t       &time_received) :
       Data(frame, time_frame, time_received),
       start_pose_(transform_t::identity()),
       end_pose_(transform_t::identity()),
@@ -43,11 +43,11 @@ public:
     {
     }
 
-    Odometry2D(const std::string  &frame,
-               const time_frame_t &time_frame,
-               const transform_t  &start,
-               const transform_t  &end,
-               const time_t       &time_received) :
+    Odometry2(const std::string  &frame,
+              const time_frame_t &time_frame,
+              const transform_t  &start,
+              const transform_t  &end,
+              const time_t       &time_received) :
       Data(frame, time_frame, time_received),
       start_pose_(start),
       end_pose_(end),
@@ -94,17 +94,17 @@ public:
         return forward_;
     }
 
-    inline Odometry2D::ConstPtr cutFront(const time_t &split_time) const
+    inline Odometry2::ConstPtr cutFront(const time_t &split_time) const
     {
-        Odometry2D::ConstPtr a;
-        Odometry2D::ConstPtr b;
+        Odometry2::ConstPtr a;
+        Odometry2::ConstPtr b;
         split(split_time, a, b);
         return b;
     }
 
     inline bool split(const time_t         &split_time,
-                      Odometry2D::ConstPtr &a,
-                      Odometry2D::ConstPtr &b) const
+                      Odometry2::ConstPtr &a,
+                      Odometry2::ConstPtr &b) const
     {
         auto do_not_split = []() {
             return false;
@@ -114,8 +114,8 @@ public:
             const double ratio = (split_time - time_frame_.start).nanoseconds() / time_frame_.duration().nanoseconds();
 
             transform_t split_pose = start_pose_.interpolate(end_pose_, ratio);
-            a.reset(new Odometry2D(frame_, time_frame_t(time_frame_.start, split_time), start_pose_, split_pose, time_received_));
-            b.reset(new Odometry2D(frame_, time_frame_t(split_time, time_frame_.end), split_pose, end_pose_, time_received_ + (split_time - time_frame_.start)));
+            a.reset(new Odometry2(frame_, time_frame_t(time_frame_.start, split_time), start_pose_, split_pose, time_received_));
+            b.reset(new Odometry2(frame_, time_frame_t(split_time, time_frame_.end), split_pose, end_pose_, time_received_ + (split_time - time_frame_.start)));
 
             return true;
         };
@@ -130,12 +130,14 @@ private:
     T           delta_linear_;
     T           delta_angular_;
     bool        forward_;
-
 };
+
+using Odometry2d = Odometry2<double>;
+using Odometry2f = Odometry2<float>;
 }
 
 template <typename T>
-inline std::ostream & operator << (std::ostream &out, const cslibs_plugins_data::types::Odometry2D<T> &odom)
+inline std::ostream & operator << (std::ostream &out, const cslibs_plugins_data::types::Odometry2<T> &odom)
 {
     out << "[Odometry2D]: linear  " << odom.getDeltaLinear()  << "\n";
     out << "              angular " << odom.getDeltaAngular() << "\n";

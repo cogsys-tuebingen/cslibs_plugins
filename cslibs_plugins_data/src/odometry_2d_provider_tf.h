@@ -17,10 +17,10 @@ class EIGEN_ALIGN16 Odometry2DProviderTFBase : public DataProvider
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    using stamped_t     = cslibs_time::Stamped<cslibs_math_2d::Transform2d<T>>;
+    using stamped_t     = cslibs_time::Stamped<cslibs_math_2d::Transform2<T>>;
 
     Odometry2DProviderTFBase() :
-        o_T_b1_(cslibs_math_2d::Transform2d<T>(), cslibs_time::Time(ros::Time::now().toNSec()).time()),
+        o_T_b1_(cslibs_math_2d::Transform2<T>(), cslibs_time::Time(ros::Time::now().toNSec()).time()),
         initialized_(false),
         rate_(60.0),
         running_(false),
@@ -53,15 +53,15 @@ protected:
         running_ = true;
         while (!stop_) {
             const ros::Time now = ros::Time::now();
-            stamped_t o_T_b2(cslibs_math_2d::Transform2d<T>(), cslibs_time::Time(now.toNSec()).time());
+            stamped_t o_T_b2(cslibs_math_2d::Transform2<T>(), cslibs_time::Time(now.toNSec()).time());
             if (tf_->lookupTransform(odom_frame_, base_frame_, now, o_T_b2, tf_timeout_)) {
                 if (initialized_) {
                     cslibs_time::TimeFrame time_frame(o_T_b1_.stamp(), o_T_b2.stamp());
-                    typename types::Odometry2D<T>::Ptr odometry(new types::Odometry2D<T>(odom_frame_,
-                                                                                         time_frame,
-                                                                                         o_T_b1_.data(),
-                                                                                         o_T_b2.data(),
-                                                                                         cslibs_time::Time(ros::Time::now().toNSec())));
+                    typename types::Odometry2<T>::Ptr odometry(new types::Odometry2<T>(odom_frame_,
+                                                                                       time_frame,
+                                                                                       o_T_b1_.data(),
+                                                                                       o_T_b2.data(),
+                                                                                       cslibs_time::Time(ros::Time::now().toNSec())));
                     data_received_(odometry);
                 } else
                     initialized_ = true;
