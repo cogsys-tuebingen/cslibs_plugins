@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>cslibs_plugins_data</name>
-  <version>0.0.1</version>
+  <version>0.0.6</version>
   <description>
     The cslibs_plugins_data package contains plugins providing data.
   </description>
