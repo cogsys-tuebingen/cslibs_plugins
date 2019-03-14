@@ -14,9 +14,9 @@ using interval_t = std::array<T, 2>;
 
 template <typename T>
 inline typename Laserscan2<T>::Ptr create(const sensor_msgs::LaserScanConstPtr &src,
-                                         const std::string                    &frame_id,
-                                         const interval_t<T>                  &linear_interval,
-                                         const interval_t<T>                  &angular_interval,
+                                         const std::string                     &frame_id,
+                                         const interval_t<T>                   &linear_interval,
+                                         const interval_t<T>                   &angular_interval,
                                          const bool                            enforce_stamp = false)
 {
     const ros::Time start_stamp = src->header.stamp;
@@ -32,7 +32,7 @@ inline typename Laserscan2<T>::Ptr create(const sensor_msgs::LaserScanConstPtr &
 
     ros::Duration delta_stamp = ros::Duration(src->time_increment) * static_cast<double>(src->ranges.size());
     if (delta_stamp <= ros::Duration(0.0))
-        delta_stamp = ros::Duration(static_cast<double>(src->scan_time) / static_cast<double>(src_ranges.size()));
+        delta_stamp = ros::Duration(src->scan_time);
 
     const uint64_t start_time = start_stamp.toNSec();
     const uint64_t end_time   = start_time + delta_stamp.toNSec();
@@ -43,7 +43,7 @@ inline typename Laserscan2<T>::Ptr create(const sensor_msgs::LaserScanConstPtr &
                                                           linear_interval,
                                                           angular_interval,
                                                           cslibs_time::Time(std::max(end_time,
-                                                                                   ros::Time::now().toNSec()))));
+                                                                                     ros::Time::now().toNSec()))));
 }
 
 template <typename T>
