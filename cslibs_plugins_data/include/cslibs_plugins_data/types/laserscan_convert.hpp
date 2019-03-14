@@ -23,33 +23,33 @@ inline typename Laserscan2<T>::Ptr create(const sensor_msgs::LaserScanConstPtr &
     if (enforce_stamp) {
         const  typename Laserscan2<T>::time_frame_t time_frame(start_stamp.toNSec(), start_stamp.toNSec());
         return typename Laserscan2<T>::Ptr (new Laserscan2<T>(frame_id,
-                                                            time_frame,
-                                                            linear_interval,
-                                                            angular_interval,
-                                                            cslibs_time::Time(std::max(start_stamp.toNSec(),
+                                                              time_frame,
+                                                              linear_interval,
+                                                              angular_interval,
+                                                              cslibs_time::Time(std::max(start_stamp.toNSec(),
                                                                                        ros::Time::now().toNSec()))));
     }
 
     ros::Duration delta_stamp = ros::Duration(src->time_increment) * static_cast<double>(src->ranges.size());
     if (delta_stamp <= ros::Duration(0.0))
-        delta_stamp = ros::Duration(src->scan_time);
+        delta_stamp = ros::Duration(static_cast<double>(src->scan_time) / static_cast<double>(src_ranges.size()));
 
     const uint64_t start_time = start_stamp.toNSec();
     const uint64_t end_time   = start_time + delta_stamp.toNSec();
 
     const  typename Laserscan2<T>::time_frame_t time_frame(start_time, end_time);
     return typename Laserscan2<T>::Ptr (new Laserscan2<T>(frame_id,
-                                                        time_frame,
-                                                        linear_interval,
-                                                        angular_interval,
-                                                        cslibs_time::Time(std::max(end_time,
+                                                          time_frame,
+                                                          linear_interval,
+                                                          angular_interval,
+                                                          cslibs_time::Time(std::max(end_time,
                                                                                    ros::Time::now().toNSec()))));
 }
 
 template <typename T>
 inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
                     const interval_t<T>                  &range_limits,
-                    typename Laserscan2<T>::Ptr           &dst,
+                    typename Laserscan2<T>::Ptr          &dst,
                     const bool                            enforce_stamp)
 {
     const auto src_linear_min  = std::max(static_cast<T>(src->range_min), range_limits[0]);
@@ -76,7 +76,7 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr &src,
     auto angle = src_angular_min;
     for (const auto range : src_ranges) {
         if(in_linear_interval(range) && in_angular_interval(angle))
-            dst->insert(angle, range);
+            dst->insert(static_cast<T>(angle), static_cast<T>(range));
         else
             dst->insertInvalid();
 
@@ -121,9 +121,10 @@ inline bool convert(const sensor_msgs::LaserScanConstPtr  &src,
         auto angle = src_angular_min;
         for (const auto range : src_ranges) {
             if(in_linear_interval(range) && in_angular_interval(angle)) {
-                const cslibs_math_3d::Point3<T> p = t_T_l * cslibs_math_3d::Point3<T>(std::cos(angle) * range,
-                                                                                        std::sin(angle) * range,
-                                                                                        0.0);
+                const cslibs_math_3d::Point3<T> p =
+                        t_T_l * cslibs_math_3d::Point3<T>(std::cos(static_cast<T>(angle)) * static_cast<T>(range),
+                                                          std::sin(static_cast<T>(angle)) * static_cast<T>(range),
+                                                          T());
                 const cslibs_math_2d::Point2<T> end_point(p(0), p(1));
 
                 const T transformed_angle = cslibs_math_2d::angle(end_point - start_point);
@@ -172,7 +173,7 @@ inline bool convertUndistorted(const sensor_msgs::LaserScanConstPtr  &src,
     const ros::Time start_stamp = src->header.stamp;
     ros::Duration   delta_stamp = ros::Duration(src->time_increment);
     if (delta_stamp <= ros::Duration(0.0))
-        delta_stamp = ros::Duration(src->scan_time / static_cast<float>(src_ranges.size()));
+        delta_stamp = ros::Duration(static_cast<double>(src->scan_time) / static_cast<double>(src_ranges.size()));
 
     const ros::Time end_stamp = start_stamp + delta_stamp * src_ranges.size();
 
