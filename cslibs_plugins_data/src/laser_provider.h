@@ -42,7 +42,7 @@ protected:
 
         typename types::Laserscan2<T>::Ptr laserscan;
         if (transform_ ? convert(msg, tf_, transform_to_frame_, tf_timeout_, range_limits_, laserscan, enforce_stamp_) :
-                        convert(msg, range_limits_, laserscan, enforce_stamp_))
+                         convert(msg, range_limits_, laserscan, enforce_stamp_))
             data_received_(laserscan);
 
         time_of_last_measurement_ = msg->header.stamp;
