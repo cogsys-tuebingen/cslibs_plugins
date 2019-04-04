@@ -59,7 +59,7 @@ protected:
 
         enforce_stamp_              = nh.param<bool>(param_name("enforce_stamp"), true);
 
-        transform_                  = nh.param<bool>(param_name("transform"), true);
+        transform_                  = nh.param<bool>(param_name("transform"), false);
         transform_to_frame_         = nh.param<std::string>(param_name("transform_to_frame"), "base_link");
 
         range_limits_               = {static_cast<T>(nh.param<double>(param_name("range_min"), 0.0)),
