@@ -24,6 +24,8 @@ protected:
     ros::Duration   time_offset_;
     ros::Time       time_of_last_measurement_;
 
+    std::array<T, 2>range_limits_;
+
     void callback(const sensor_msgs::PointCloud2ConstPtr &msg)
     {
         if (!time_offset_.isZero() && !time_of_last_measurement_.isZero())
@@ -34,7 +36,7 @@ protected:
                                                                                    cslibs_math_ros::sensor_msgs::conversion_3d::from(msg),
                                                                                    cslibs_time::Time(std::max(msg->header.stamp.toNSec(), ros::Time::now().toNSec()))));
 
-        cslibs_math_ros::sensor_msgs::conversion_3d::from<T>(msg, pointcloud->points());
+        cslibs_math_ros::sensor_msgs::conversion_3d::from<T>(msg, pointcloud->points(), range_limits_);
         data_received_(pointcloud);
 
         time_of_last_measurement_ = msg->header.stamp;
@@ -47,6 +49,9 @@ protected:
         int queue_size  = nh.param<int>(param_name("queue_size"), 1);
         topic_          = nh.param<std::string>(param_name("topic"), "");
         source_         = nh.subscribe(topic_, queue_size, &Pointcloud3dProviderBase::callback, this);
+
+        range_limits_   = {static_cast<T>(nh.param<double>(param_name("range_min"), 0.0)),
+                           static_cast<T>(nh.param<double>(param_name("range_max"), std::numeric_limits<double>::max()))};
 
         double rate     = nh.param<double>(param_name("rate"), 0.0);
         if (rate > 0.0) {
