@@ -30,7 +30,7 @@ before_script:
   - cd /build/ws/
 
   - echo $CI_SERVER_HOST
-  - echo $GITLAB_USER_ID
+  - echo $GITLAB_USER_NAME
 stages:
   - build
 
