@@ -19,24 +19,51 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
     INCLUDE_DIRS   include
     LIBRARIES      ${PROJECT_NAME}
-    CATKIN_DEPENDS cslibs_plugins cslibs_time cslibs_utility cslibs_math_ros cslibs_math_2d cslibs_math_3d
-                   pluginlib roscpp rostest sensor_msgs nav_msgs tf
+    CATKIN_DEPENDS
+        cslibs_plugins
+        cslibs_time
+        cslibs_utility
+        cslibs_math_ros
+        cslibs_math_2d
+        cslibs_math_3d
+        pluginlib
+        roscpp
+        rostest
+        sensor_msgs
+        nav_msgs tf
 )
+if(NOT ${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    set(TARGET_COMPILE_DEFINITIONS
+        -Wall -WError -Ofast -ffastmath
+    )
+    # enabling -march=native my result in problems on some machines,
+    # my try -mtune=native
 
-include_directories(
-    include
-    ${catkin_INCLUDE_DIRS}
-)
+    message(STATUS "[${PROJECT_NAME}]: Compiling with optimization!")
+endif()
 
 add_library(${PROJECT_NAME}
     src/laser_provider.cpp
     src/odometry_2d_provider.cpp
     src/odometry_2d_provider_tf.cpp
     src/pointcloud_3d_provider.cpp
-    )
+)
+
+target_compile_definitions(${PROJECT_NAME}
+    PRIVATE
+        ${TARGET_COMPILE_DEFINITIONS}
+)
+
+target_include_directories(${PROJECT_NAME}
+    PRIVATE
+        include
+        ${catkin_INCLUDE_DIRS}
+)
+
 target_link_libraries(${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    )
+    PRIVATE
+        ${catkin_LIBRARIES}
+)
 
 install(FILES plugins.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
