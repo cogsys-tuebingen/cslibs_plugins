@@ -16,7 +16,9 @@ before_script:
   # you will overwrite your user's SSH config.
   - mkdir -p ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-
+  - GIT_USER=gitlab
+  - GIT_HOST=$CI_SERVER_HOST
+  - if [ ! -z "$GIT_USER_OVERRIDE" ]; then GIT_USER=$GIT_USER_OVERRIDE; fi
   # Here we are at /build/$CI_PROJECT_NAME
   # For pure catkin projects, we need a workspace:
   - mkdir -p /build/ws/src/
@@ -29,8 +31,8 @@ before_script:
   - git clone gitlab@gitlab.cs.uni-tuebingen.de:libs/cslibs_math.git -b devel cslibs_math
   - cd /build/ws/
 
-  - echo $CI_SERVER_HOST
-  - echo $CI_DEPLOY_USER
+  - echo $GIT_USER
+  - echo $GIT_HOST
 stages:
   - build
 
