@@ -30,6 +30,8 @@ before_script:
   - git clone gitlab@gitlab.cs.uni-tuebingen.de:libs/cslibs_math.git -b devel cslibs_math
   - cd /build/ws/
 
+  - echo $CI_SERVER_HOST
+  - echo $GITLAB_USER_ID
 stages:
   - build
 
