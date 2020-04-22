@@ -28,8 +28,6 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
 )
 
-cslibs_plugins_data_show_headers()
-
 add_library(${PROJECT_NAME}
     src/laser_provider.cpp
     src/odometry_2d_provider.cpp
