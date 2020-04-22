@@ -26,13 +26,11 @@ before_script:
   - ln -s $CI_PROJECT_DIR src/$CI_PROJECT_NAME
   # clone dependencies here:
   - cd src
-  - git clone gitlab@gitlab.cs.uni-tuebingen.de:libs/cslibs_utility.git -b devel cslibs_utility
-  - git clone gitlab@gitlab.cs.uni-tuebingen.de:libs/cslibs_time.git -b devel cslibs_time
-  - git clone gitlab@gitlab.cs.uni-tuebingen.de:libs/cslibs_math.git -b devel cslibs_math
+  - git clone $GIT_USER@$GIT_HOST:libs/cslibs_utility.git -b devel cslibs_utility
+  - git clone $GIT_USER@$GIT_HOST:libs/cslibs_time.git -b devel cslibs_time
+  - git clone $GIT_USER@$GIT_HOST:libs/cslibs_math.git -b devel cslibs_math
   - cd /build/ws/
 
-  - echo $GIT_USER
-  - echo $GIT_HOST
 stages:
   - build
 
