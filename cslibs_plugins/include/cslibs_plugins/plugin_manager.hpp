@@ -2,8 +2,8 @@
 #define CSLIBS_PLUGINS_PLUGIN_MANAGER_HPP
 
 /// SYSTEM
-#include <pluginlib/class_loader.h>
-#include <class_loader/class_loader.h>
+#include <pluginlib/class_loader.hpp>
+#include <class_loader/class_loader.hpp>
 #include <set>
 #include <tinyxml.h>
 #include <mutex>
