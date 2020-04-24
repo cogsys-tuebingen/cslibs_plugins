@@ -42,6 +42,11 @@ if(NOT ${CMAKE_BUILD_TYPE} STREQUAL Debug)
     message(STATUS "[${PROJECT_NAME}]: Compiling with optimization!")
 endif()
 
+set(TARGET_INCLUDE_DIRS
+    include
+    ${catkin_INCLUDE_DIRS}
+)
+
 add_library(${PROJECT_NAME}
     src/laser_provider.cpp
     src/odometry_2d_provider.cpp
@@ -63,6 +68,19 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${catkin_LIBRARIES}
+)
+
+cslibs_plugins_data_add_unit_test_ros(integration
+    INCLUDE_DIRS
+        ${TARGET_INCLUDE_DIRS}
+    LAUNCH_FILE
+        test/integration.test
+    SOURCE_FILES
+        test/integration.cpp
+    LINK_LIBRARIES
+        ${catkin_LIBRARIES}
+    COMPILE_DEFINITIONS
+        ${TARGET_COMPILE_DEFINITIONS}
 )
 
 install(FILES plugins.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
