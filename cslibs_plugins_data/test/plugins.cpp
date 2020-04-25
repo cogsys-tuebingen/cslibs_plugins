@@ -40,8 +40,8 @@ TEST( Test_cslibs_plugins_data, testFindNames)
         if(constructor) {
             plugin = constructor();
         }
-        EXPECT_TRUE(constructor);
-        EXPECT_TRUE(plugin);
+        EXPECT_TRUE(static_cast<bool>(constructor));
+        EXPECT_TRUE(plugin.get() != nullptr);
     }
 }
 
