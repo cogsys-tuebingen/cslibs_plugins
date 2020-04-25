@@ -1,7 +1,9 @@
 #ifndef CSLIBS_PLUGINS_PLUGIN_LOADER_HPP
 #define CSLIBS_PLUGINS_PLUGIN_LOADER_HPP
 
-#include "plugin_factory.hpp"
+#include <cslibs_plugins/plugin_factory.hpp>
+#include <cslibs_plugins/terminal_color.hpp>
+
 #include <map>
 #include <ros/node_handle.h>
 #if __GNUC__ > 5
@@ -39,7 +41,11 @@ public:
             if (base_class_name == plugin_t::Type()) {
                 plugins[name] = factory.create(class_name, name, arguments...);
                 if (!plugins[name]) {
-                    std::cerr << "[PluginFactory]: Could not create plugin, empty constructor received!" << "\n";
+                    std::cerr << "[PluginFactory]: Could not create plugin '"
+                              << io::color::bold(io::color::yellow(name)) << "' with type \n  "
+                              << io::color::bold(io::color::green(class_name)) <<" -> "
+                              << io::color::bold(io::color::blue(base_class_name)) << ". \n  "
+                              << "Empty constructor received!." << std::endl;
                     plugins.erase(name);
                 }
             }
