@@ -12,7 +12,8 @@ class Pointcloud3dProviderBase : public DataProvider
 {
 public:
     Pointcloud3dProviderBase() :
-        time_offset_(0.0)
+        time_offset_(0.0),
+        time_of_last_measurement_(0.0)
     {
     }
     virtual ~Pointcloud3dProviderBase() = default;
