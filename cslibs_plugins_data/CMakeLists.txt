@@ -37,8 +37,8 @@ catkin_package(
 )
 
 if(NOT ${CMAKE_BUILD_TYPE} STREQUAL Debug)
-    set(TARGET_COMPILE_DEFINITIONS
-        -Wall -WError -Ofast -ffastmath
+    set(TARGET_COMPILE_OPTIONS
+        -Wall -Werror -Ofast -ffast-math
     )
     # enabling -march=native my result in problems on some machines,
     # my try -mtune=native
@@ -58,9 +58,11 @@ add_library(${PROJECT_NAME}
     src/pointcloud_3d_provider.cpp
 )
 
-target_compile_definitions(${PROJECT_NAME}
+
+
+target_compile_options(${PROJECT_NAME}
     PRIVATE
-        ${TARGET_COMPILE_DEFINITIONS}
+        ${TARGET_COMPILE_OPTIONS}
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -83,8 +85,8 @@ cslibs_plugins_data_add_unit_test_ros(integration
         test/plugins.cpp
     LINK_LIBRARIES
         ${catkin_LIBRARIES}
-    COMPILE_DEFINITIONS
-        ${TARGET_COMPILE_DEFINITIONS}
+    COMPILE_OPTIONS
+        ${TARGET_COMPILE_OPTIONS}
 )
 
 install(FILES plugins.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
