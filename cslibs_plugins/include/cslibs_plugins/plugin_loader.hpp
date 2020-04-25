@@ -16,8 +16,8 @@ namespace cslibs_plugins {
 class PluginLoader
 {
 public:
-    PluginLoader(const std::string &package_name,
-                 ros::NodeHandle &nh_private) :
+    inline PluginLoader(const std::string &package_name,
+                        ros::NodeHandle &nh_private) :
         package_name_(package_name),
         nh_private_(nh_private)
     {
@@ -32,11 +32,11 @@ public:
 
         /// all in the launch file entered plugins have been retrieved now
         /// now we load the ones related to this ProviderManager
-        static PluginFactory<plugin_t, arguments_t...> factory(package_name_);
+        static PluginFactory<plugin_t, arguments_t...> factory{package_name_};
         for (const auto &entry : plugins_found_) {
-            const std::string &name = entry.first;
-            const std::string &base_class_name = entry.second.base_class_name;
-            const std::string &class_name = entry.second.class_name;
+            const auto &name = entry.first;
+            const auto &base_class_name = entry.second.base_class_name;
+            const auto &class_name = entry.second.class_name;
 
             if (base_class_name == plugin_t::Type()) {
                 plugins[name] = factory.create(class_name, name, arguments...);
@@ -60,9 +60,9 @@ public:
     {
         static PluginFactory<plugin_t, arguments_t ...> factory(package_name_);
         for (const auto &entry : plugins_found_) {
-            const std::string &name = entry.first;
-            const std::string &base_class_name = entry.second.base_class_name;
-            const std::string &class_name = entry.second.class_name;
+            const auto &name = entry.first;
+            const auto &base_class_name = entry.second.base_class_name;
+            const auto &class_name = entry.second.class_name;
 
             if (base_class_name == plugin_t::Type())
                 plugin = factory.create(class_name, name, arguments...);
@@ -90,20 +90,20 @@ private:
 
     inline void parseLaunchFile()
     {
-        std::string  ns = nh_private_.getNamespace();
+        const auto ns = nh_private_.getNamespace();
 
         /// first parse the parameters
         std::vector<std::string> params;
         nh_private_.getParamNames(params);
 
-        static const std::string class_regex_str = "(" + ns + "/)(.*)(/class)";
-        static const std::string base_class_regex_str = "(" + ns + "/)(.*)(/base_class)";
+        const std::string class_regex_str = "(" + ns + "/)(.*)(/class)";
+        const std::string base_class_regex_str = "(" + ns + "/)(.*)(/base_class)";
 
 #if __GNUC__ > 5
         std::regex class_regex(class_regex_str);
         std::regex base_class_regex(base_class_regex_str);
         std::cmatch match;
-        for (const std::string &p : params) {
+        for (const auto &p : params) {
             if (std::regex_match(p.c_str(), match, class_regex))
                 nh_private_.getParam(p, plugins_found_[match[2]].class_name);
 
@@ -114,7 +114,7 @@ private:
         boost::regex class_regex(class_regex_str);
         boost::regex base_class_regex(base_class_regex_str);
         boost::cmatch match;
-        for (const std::string &p : params) {
+        for (const auto &p : params) {
             if (boost::regex_match(p.c_str(), match, class_regex))
                 nh_private_.getParam(p, plugins_found_[match[2]].class_name);
 

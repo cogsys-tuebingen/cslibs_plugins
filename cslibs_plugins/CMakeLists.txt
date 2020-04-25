@@ -9,9 +9,12 @@ find_package(catkin REQUIRED)
 find_package(TinyXML REQUIRED)
 
 catkin_package(
-    INCLUDE_DIRS   include
-    CFG_EXTRAS     cslibs_plugins_enable_c++17.cmake
-    DEPENDS        TinyXML
+    INCLUDE_DIRS
+        include
+    CFG_EXTRAS
+        cslibs_plugins_enable_c++17.cmake
+    DEPENDS
+        TinyXML
 )
 
 add_library(${PROJECT_NAME} INTERFACE)

@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 2.8.3)
 project(cslibs_plugins_data)
 
 find_package(catkin REQUIRED COMPONENTS
+    cslibs_math_2d
+    cslibs_math_3d
+    cslibs_math_ros
     cslibs_plugins
     cslibs_time
     cslibs_utility
-    cslibs_math_ros
-    cslibs_math_2d
-    cslibs_math_3d
     pluginlib
     roscpp
     rostest
@@ -17,21 +17,25 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 catkin_package(
-    INCLUDE_DIRS   include
-    LIBRARIES      ${PROJECT_NAME}
+    INCLUDE_DIRS
+        include
+    LIBRARIES
+        ${PROJECT_NAME}
     CATKIN_DEPENDS
+        cslibs_math_2d
+        cslibs_math_3d
+        cslibs_math_ros
         cslibs_plugins
         cslibs_time
         cslibs_utility
-        cslibs_math_ros
-        cslibs_math_2d
-        cslibs_math_3d
         pluginlib
         roscpp
         rostest
         sensor_msgs
-        nav_msgs tf
+        nav_msgs
+        tf
 )
+
 if(NOT ${CMAKE_BUILD_TYPE} STREQUAL Debug)
     set(TARGET_COMPILE_DEFINITIONS
         -Wall -WError -Ofast -ffastmath
@@ -74,9 +78,9 @@ cslibs_plugins_data_add_unit_test_ros(integration
     INCLUDE_DIRS
         ${TARGET_INCLUDE_DIRS}
     LAUNCH_FILE
-        test/integration.test
+        test/plugins.test
     SOURCE_FILES
-        test/integration.cpp
+        test/plugins.cpp
     LINK_LIBRARIES
         ${catkin_LIBRARIES}
     COMPILE_DEFINITIONS

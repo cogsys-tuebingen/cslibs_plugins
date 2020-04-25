@@ -2,212 +2,217 @@
 #define CSLIBS_PLUGINS_PLUGIN_MANAGER_HPP
 
 /// SYSTEM
-#include <pluginlib/class_loader.hpp>
-#include <class_loader/class_loader.hpp>
-#include <set>
 #include <tinyxml.h>
-#include <mutex>
+
+#include <class_loader/class_loader.hpp>
+#include <cslibs_utility/common/delegate.hpp>
 #include <functional>
+#include <mutex>
+#include <pluginlib/class_loader.hpp>
+#include <set>
 #include <typeindex>
 
-#include <cslibs_utility/common/delegate.hpp>
-
 namespace cslibs_plugins {
+/**
+ * @brief Class that parses xml files provided by packges, searching for a
+ * specific tag. A specific type of plugin is expected.
+ */
 template <class M>
-class PluginManagerImp
-{
-    template <class>
-    friend class PluginManager;
+class PluginManagerImp {
+ public:
+  virtual ~PluginManagerImp() = default;
 
-protected:
-    using PluginConstructorM = cslibs_utility::common::delegate<std::shared_ptr<M>()>;
-    using Constructors       = std::map<std::string, PluginConstructorM>;
+ protected:
+  template <class>
+  friend class PluginManager;
+  using PluginConstructorM =
+      cslibs_utility::common::delegate<std::shared_ptr<M>()>;
+  using Constructors = std::map<std::string, PluginConstructorM>;
+  /**
+   * @brief PluginManager constructor.
+   * @param base_class_type   full name of the base class including the
+   * namespace
+   * @param package_name      name of the package for which the plugin was
+   * exported
+   */
+  inline explicit PluginManagerImp(const std::string& base_class_type,
+                                   const std::string& package_name)
+      : base_class_type_(base_class_type),
+        loader_(package_name, base_class_type) {}
 
-protected:
-    PluginManagerImp(const std::string& full_name,
-                     const std::string& package_name) :
-        plugins_loaded_(false),
-        full_name_(full_name),
-        loader_(package_name, full_name)
+  inline PluginManagerImp(const PluginManagerImp& rhs) = default;
+  inline PluginManagerImp& operator=(const PluginManagerImp& rhs) = default;
+
+  inline void load() {
+    auto xml_files = loader_.getPluginXmlPaths();
+    for (const auto& manifest : xml_files) {
+      processManifest(manifest);
+    }
+    plugins_loaded_ = true;
+  }
+
+  inline bool processManifest(const std::string& xml_file) {
+    TiXmlDocument document;
+    document.LoadFile(xml_file);
+    const auto config = document.RootElement();
+    if (config == nullptr) return false;
+
+    if (config->ValueStr() != "library") return false;
+
+    auto library = config;
+    while (library != nullptr) {
+      const std::string library_name{library->Attribute("path")};
+      if (library_name.size() == 0) continue;
+
+      loadLibrary(library_name, library);
+      library = library->NextSiblingElement("library");
+    }
+
+    return true;
+  }
+
+  inline std::string loadLibrary(const std::string& library_name,
+                                 TiXmlElement* library) {
+    const auto library_path = library_name + ".so";
+
+    bool load = false;
     {
-    }
-
-    PluginManagerImp(const PluginManagerImp& rhs);
-    PluginManagerImp& operator = (const PluginManagerImp& rhs);
-
-public:
-    virtual ~PluginManagerImp() {
-    }
-
-protected:
-
-    void load() {
-        std::vector<std::string> xml_files = loader_.getPluginXmlPaths();
-
-        for (std::vector<std::string>::const_iterator manifest = xml_files.begin() ; manifest != xml_files.end() ; ++ manifest)
-            processManifest(*manifest);
-
-        plugins_loaded_ = true;
-    }
-
-    bool processManifest(const std::string& xml_file)
-    {
-        TiXmlDocument document;
-        document.LoadFile(xml_file);
-        TiXmlElement * config = document.RootElement();
-        if (config == nullptr)
-            return false;
-
-        if (config->ValueStr() != "library")
-            return false;
-
-        TiXmlElement* library = config;
-        while (library != nullptr) {
-
-            std::string library_name = library->Attribute("path");
-            if (library_name.size() == 0)
-                continue;
-
-            loadLibrary(library_name, library);
-            library = library->NextSiblingElement( "library" );
+      auto class_element = library->FirstChildElement("class");
+      while (class_element) {
+        std::string base_class_type{
+            class_element->Attribute("base_class_type")};
+        if (base_class_type == base_class_type_) {
+          load = true;
+          break;
         }
-
-        return true;
+        class_element = class_element->NextSiblingElement("class");
+      }
     }
 
-    std::string loadLibrary(const std::string& library_name, TiXmlElement* library)  {
-        std::string library_path = library_name + ".so";
-
-        bool load = false;
-        {
-            TiXmlElement* class_element = library->FirstChildElement("class");
-            while (class_element) {
-                std::string base_class_type = class_element->Attribute("base_class_type");
-                if (base_class_type == full_name_) {
-                    load = true;
-                    break;
-                }
-                class_element = class_element->NextSiblingElement( "class" );
-            }
-        }
-
-        if (!load)
-            return "";
-
-        std::shared_ptr<class_loader::ClassLoader> loader(new class_loader::ClassLoader(library_path));
-
-        TiXmlElement* class_element = library->FirstChildElement("class");
-        while (class_element) {
-            loadClass(library_name, class_element, loader.get());
-            class_element = class_element->NextSiblingElement( "class" );
-        }
-        loaders_[library_name] = std::move(loader);
-
-        return library_path;
+    if (!load) {
+      return "";
     }
 
-    void loadClass(const std::string& library_name, TiXmlElement* class_element, class_loader::ClassLoader* loader) {
-        std::string base_class_type = class_element->Attribute("base_class_type");
-        std::string derived_class   = class_element->Attribute("type");
+    std::shared_ptr<class_loader::ClassLoader> loader(
+        new class_loader::ClassLoader(library_path));
 
-        std::string lookup_name = (class_element->Attribute("name") != nullptr) ?
-              class_element->Attribute("name") : derived_class;
-
-        if (base_class_type == full_name_){
-            std::string description = readString(class_element, "description");
-            std::string icon        = readString(class_element, "icon");
-            std::string tags        = readString(class_element, "tags");
-
-            available_classes.emplace(lookup_name, [loader, lookup_name]() {
-                 return std::shared_ptr<M> { loader->createUnmanagedInstance<M>(lookup_name) };
-            });
-        }
+    auto class_element = library->FirstChildElement("class");
+    while (class_element) {
+      loadClass(library_name, class_element, loader.get());
+      class_element = class_element->NextSiblingElement("class");
     }
+    loaders_[library_name] = std::move(loader);
 
-    std::string readString(TiXmlElement* class_element, const std::string& name) {
-        TiXmlElement* description   = class_element->FirstChildElement(name);
-        std::string description_str = (description && description->GetText()) ? description->GetText() : "";
+    return library_path;
+  }
 
-        return description_str;
+  inline void loadClass(const std::string& library_name,
+                        TiXmlElement* class_element,
+                        class_loader::ClassLoader* loader) {
+    const std::string base_class_type{
+        class_element->Attribute("base_class_type")};
+    const std::string derived_class{class_element->Attribute("type")};
+
+    const std::string lookup_name{(class_element->Attribute("name") != nullptr)
+                                      ? class_element->Attribute("name")
+                                      : derived_class};
+
+    if (base_class_type == base_class_type_) {
+      const auto description = readString(class_element, "description");
+      const auto icon = readString(class_element, "icon");
+      const auto tags = readString(class_element, "tags");
+
+      available_classes.emplace(lookup_name, [loader, lookup_name]() {
+        return std::shared_ptr<M>{
+            loader->createUnmanagedInstance<M>(lookup_name)};
+      });
     }
+  }
 
-protected:
-    bool plugins_loaded_;
-    std::string full_name_;
+  inline std::string readString(TiXmlElement* class_element,
+                                const std::string& name) {
+    auto description = class_element->FirstChildElement(name);
+    std::string description_str{
+        (description && description->GetText()) ? description->GetText() : ""};
 
-    pluginlib::ClassLoader<M> loader_;
-    std::map< std::string, std::shared_ptr<class_loader::ClassLoader>> loaders_;
+    return description_str;
+  }
 
-    Constructors available_classes;
+ protected:
+  bool plugins_loaded_{false};
+  std::string base_class_type_;
+
+  pluginlib::ClassLoader<M> loader_;
+  std::map<std::string, std::shared_ptr<class_loader::ClassLoader>> loaders_;
+
+  Constructors available_classes;
 };
 
-class PluginManagerLocker
-{
-public:
-    static std::mutex& getMutex()
-    {
-        static PluginManagerLocker instance;
-        return instance.mutex;
-    }
+class PluginManagerLocker {
+ public:
+  inline static std::mutex& getMutex() {
+    static PluginManagerLocker instance;
+    return instance.mutex;
+  }
 
-private:
-    PluginManagerLocker()
-    {}
-
-private:
-    std::mutex mutex;
+ private:
+  PluginManagerLocker() = default;
+  std::mutex mutex;
 };
 
 template <class M>
-class PluginManager
-{
-protected:
-    using Parent = PluginManagerImp<M>;
+class PluginManager {
+ protected:
+  using Parent = PluginManagerImp<M>;
 
-public:
-    using Constructor  = typename Parent::PluginConstructorM;
-    using Constructors = typename Parent::Constructors;
+ public:
+  using Constructor = typename Parent::PluginConstructorM;
+  using Constructors = typename Parent::Constructors;
 
-    PluginManager(const std::string& full_name,
-                  const std::string& package_name)
-    {
-        std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
-        if (i_count == 0) {
-            ++i_count;
-            instance = new Parent(full_name, package_name);
-        }
+  /**
+   * @brief PluginManager constructor.
+   * @param base_class_type   full name of the base class including the
+   * namespace
+   * @param package_name      name of the package for which the plugin was
+   * exported
+   */
+  inline explicit PluginManager(const std::string& base_class_type,
+                                const std::string& package_name) {
+    std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
+    if (i_count == 0) {
+      ++i_count;
+      instance = new Parent(base_class_type, package_name);
     }
+  }
 
-    virtual ~PluginManager()
-    {
-        std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
-        --i_count;
-        if (i_count == 0)
-            delete instance;
-    }
+  inline virtual ~PluginManager() {
+    std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
+    --i_count;
+    if (i_count == 0) delete instance;
+  }
 
-    virtual bool pluginsLoaded() const {
-        std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
-        return instance->plugins_loaded_;
-    }
+  inline bool pluginsLoaded() const {
+    std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
+    return instance->plugins_loaded_;
+  }
 
-    virtual void load() {
-        std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
-        instance->load();
-    }
+  inline void load() {
+    std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
+    instance->load();
+  }
 
-    Constructor getConstructor(const std::string& name) {
-        std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
-        auto pos = instance->available_classes.find(name);
-        if (pos != instance->available_classes.end())
-            return pos->second;
-        else
-            return {};
-    }
+  inline Constructor getConstructor(const std::string& name) {
+    std::unique_lock<std::mutex> lock(PluginManagerLocker::getMutex());
+    auto pos = instance->available_classes.find(name);
+    if (pos != instance->available_classes.end())
+      return pos->second;
+    else
+      return {};
+  }
 
-protected:
-    static int i_count;
-    static Parent* instance;
+ protected:
+  static int i_count;
+  static Parent* instance;
 };
 
 template <class M>
@@ -215,6 +220,6 @@ int PluginManager<M>::i_count = 0;
 template <class M>
 typename PluginManager<M>::Parent* PluginManager<M>::instance(nullptr);
 
-}
+}  // namespace cslibs_plugins
 
-#endif // CSLIBS_PLUGINS_PLUGIN_MANAGER_HPP
+#endif  // CSLIBS_PLUGINS_PLUGIN_MANAGER_HPP

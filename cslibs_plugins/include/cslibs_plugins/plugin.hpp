@@ -28,6 +28,8 @@ public:
     }
 
 protected:
+    inline Plugin() = default;
+
     std::size_t id_;
     std::string name_;
 };

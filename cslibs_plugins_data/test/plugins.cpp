@@ -39,75 +39,11 @@ TEST( Test_cslibs_plugins_data, testFindNames)
         data_provider_t::Ptr plugin;
         if(constructor) {
             plugin = constructor();
-        } else {
-            std::cerr << class_name << std::endl;
         }
+        EXPECT_TRUE(constructor);
         EXPECT_TRUE(plugin);
     }
 }
-
-
-
-TEST( Test_cslibs_plugins_data, testLoadLaserProvider)
-{
-    EXPECT_TRUE(true);
-}
-
-TEST( Test_cslibs_plugins_data, testLoadLaserProvider_d)
-{
-    EXPECT_TRUE(true);
-}
-
-TEST( Test_cslibs_plugins_data, testLoadLaserProvider_f)
-{
-    EXPECT_TRUE(true);
-}
-
-TEST( Test_cslibs_plugins_data, testLoadOdometry2DProviderTF)
-{
-    EXPECT_TRUE(true);
-}
-
-TEST( Test_cslibs_plugins_data, testLoadLaserOdometry2DProviderTF_d)
-{
-    EXPECT_TRUE(true);
-}
-
-TEST( Test_cslibs_plugins_data, testLoadOdometry2DProviderTF_f)
-{
-    EXPECT_TRUE(true);
-}
-
-TEST( Test_cslibs_plugins_data, testLoadOdometry2DProvider)
-{
-    EXPECT_TRUE(true);
-}
-
-TEST( Test_cslibs_plugins_data, testLoadLaserOdometry2DProvider_d)
-{
-    EXPECT_TRUE(true);
-}
-
-TEST( Test_cslibs_plugins_data, testLoadOdometry2DProvider_f)
-{
-    EXPECT_TRUE(true);
-}
-
-TEST( Test_cslibs_plugins_data, testLoadPointcloud3dProvider)
-{
-    EXPECT_TRUE(true);
-}
-
-TEST( Test_cslibs_plugins_data, testLoadLaserPointcloud3dProvider_d)
-{
-    EXPECT_TRUE(true);
-}
-
-TEST( Test_cslibs_plugins_data, testLoadPointcloud3dProvider_f)
-{
-    EXPECT_TRUE(true);
-}
-
 
 int main(int argc, char *argv[])
 {
