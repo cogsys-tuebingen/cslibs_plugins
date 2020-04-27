@@ -76,7 +76,7 @@ target_link_libraries(${PROJECT_NAME}
         ${catkin_LIBRARIES}
 )
 
-cslibs_plugins_data_add_unit_test_ros(integration
+cslibs_plugins_data_add_unit_test_ros(plugins
     INCLUDE_DIRS
         ${TARGET_INCLUDE_DIRS}
     LAUNCH_FILE
