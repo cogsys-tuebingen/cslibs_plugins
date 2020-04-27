@@ -4,6 +4,7 @@
 /// SYSTEM
 #include <tinyxml.h>
 
+#include <class_loader/multi_library_class_loader.h>
 #include <class_loader/class_loader.hpp>
 #include <cslibs_utility/common/delegate.hpp>
 #include <functional>
@@ -93,22 +94,18 @@ class PluginManagerImp {
       return "";
     }
 
-    std::shared_ptr<class_loader::ClassLoader> loader(
-        new class_loader::ClassLoader(library_path));
+    multi_lib_loader_->loadLibrary(library_path);
 
     auto class_element = library->FirstChildElement("class");
     while (class_element) {
-      loadClass(library_name, class_element, loader.get());
-      class_element = class_element->NextSiblingElement("class");
+       loadClass(class_element);
+       class_element = class_element->NextSiblingElement("class");
     }
-    loaders_[library_name] = std::move(loader);
 
     return library_path;
   }
 
-  inline void loadClass(const std::string& library_name,
-                        TiXmlElement* class_element,
-                        class_loader::ClassLoader* loader) {
+  inline void loadClass(TiXmlElement* class_element) {
     const std::string base_class_type{
         class_element->Attribute("base_class_type")};
     const std::string derived_class{class_element->Attribute("type")};
@@ -122,9 +119,9 @@ class PluginManagerImp {
       const auto icon = readString(class_element, "icon");
       const auto tags = readString(class_element, "tags");
 
-      available_classes.emplace(lookup_name, [loader, lookup_name]() {
+      available_classes.emplace(lookup_name, [this, lookup_name]() {
         return std::shared_ptr<M>{
-            loader->createUnmanagedInstance<M>(lookup_name)};
+            multi_lib_loader_->createUnmanagedInstance<M>(lookup_name)};
       });
     }
   }
@@ -143,8 +140,7 @@ class PluginManagerImp {
   std::string base_class_type_;
 
   pluginlib::ClassLoader<M> loader_;
-  std::map<std::string, std::shared_ptr<class_loader::ClassLoader>> loaders_;
-
+  std::unique_ptr<class_loader::MultiLibraryClassLoader> multi_lib_loader_{new class_loader::MultiLibraryClassLoader{true}};
   Constructors available_classes;
 };
 
