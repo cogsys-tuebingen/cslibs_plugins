@@ -1,109 +1,114 @@
 #ifndef CSLIBS_PLUGINS_DATA_PROVIDER_HPP
 #define CSLIBS_PLUGINS_DATA_PROVIDER_HPP
 
-#include <memory>
-#include <functional>
-
-#include <cslibs_plugins/plugin.hpp>
-#include <cslibs_plugins_data/data.hpp>
-
-#include <cslibs_utility/signals/signals.hpp>
-#include <cslibs_utility/common/delegate.hpp>
-
-#include <cslibs_math_ros/tf/tf_provider.hpp>
 #include <ros/node_handle.h>
 
+#include <cslibs_math_ros/tf/tf_provider.hpp>
+#include <cslibs_plugins/plugin.hpp>
+#include <cslibs_plugins_data/data.hpp>
+#include <cslibs_utility/common/delegate.hpp>
+#include <cslibs_utility/signals/signals.hpp>
+#include <functional>
+#include <memory>
+
 namespace cslibs_plugins_data {
-class DataProvider : public cslibs_plugins::Plugin
-{
-public:
-    using Ptr           = std::shared_ptr<DataProvider>;
-    using callback_t    = cslibs_utility::common::delegate<void(const Data::ConstPtr&)>;
-    using signal_t      = cslibs_utility::signals::Signal<callback_t>;
-    using connection_t  = signal_t::Connection;
-    using tf_provider_t = cslibs_math_ros::tf::TFProvider;
+class DataProvider : public cslibs_plugins::Plugin {
+ public:
+  using Ptr = std::shared_ptr<DataProvider>;
 
-    DataProvider() = default;
-    virtual ~DataProvider() = default;
+  using callback_t =
+      cslibs_utility::common::delegate<void(const Data::ConstPtr &)>;
+  using signal_t = cslibs_utility::signals::Signal<callback_t>;
+  using connection_t = signal_t::Connection;
+  using tf_provider_t = cslibs_math_ros::tf::TFProvider;
 
-    inline const static std::string Type()
-    {
-        return "cslibs_plugins_data::DataProvider";
-    }
+  /**
+   * @brief the default constructor
+   */
+  inline DataProvider() = default;
+  /**
+   * @brief the default destructor
+   */
+  virtual ~DataProvider() = default;
 
-    inline void setup(const typename tf_provider_t::Ptr &tf,
-                      ros::NodeHandle &nh)
-    {
-        auto param_name = [this](const std::string &name){ return name_ + "/" + name; };
+  /**
+   * @brief Returns the type as string for the pluginlib.
+   * @return the type as string
+   */
+  inline static std::string const Type() {
+    return "cslibs_plugins_data::DataProvider";
+  }
 
-        tf_         = tf;
-        tf_timeout_ = ros::Duration(nh.param<double>(param_name("tf_timeout"), 0.1));
-        doSetup(nh);
-    }
+  /**
+   * @brief Set up the data provider by passing a tf provider and ROS node handle.
+   * @param tf      the tf provider
+   * @param nh      the ros node handle
+   */
+  inline void setup(const typename tf_provider_t::Ptr &tf,
+                    ros::NodeHandle &nh) {
+    auto param_name = [this](const std::string &name) {
+      return name_ + "/" + name;
+    };
 
-     /**
-     * @brief Connect to data provider. Callback will be executed as
-     *        long as the connection object is alive.
-     * @param callback - function to call
-     * @return
-     */
-    connection_t::Ptr connect(const callback_t &callback)
-    {
-        return data_received_.connect(callback);
-    }
+    tf_ = tf;
+    tf_timeout_ =
+        ros::Duration(nh.param<double>(param_name("tf_timeout"), 0.1));
+    doSetup(nh);
+  }
 
-    /**
-     * @brief Enable data to be pushed through.
-     */
-    void enable()
-    {
-        data_received_.enable();
-    }
+  /**
+   * @brief Connect to data provider. Callback will be executed as
+   *        long as the connection object is alive.
+   * @param callback    function to call
+   * @return connection for a given callback
+   */
+  connection_t::Ptr connect(const callback_t &callback) {
+    return data_received_.connect(callback);
+  }
 
-    /**
-     * @brief Disable data to be pushed through.
-     */
-    void disable()
-    {
-        data_received_.disable();
-    }
+  /**
+   * @brief Enable data to be pushed through.
+   */
+  void enable() { data_received_.enable(); }
 
-    /**
-     * Test if publisher has a certain type.
-     */
-    template<typename T>
-    bool isType() const
-    {
-        const T *t = dynamic_cast<const T*>(this);
-        return t != nullptr;
-    }
+  /**
+   * @brief Disable data to be pushed through.
+   */
+  void disable() { data_received_.disable(); }
 
-    /**
-     * Helper method for casting providers.
-     */
-    template<typename T>
-    T const & as() const
-    {
-        return dynamic_cast<const T&>(*this);
-    }
+  /**
+   * @brief Test if publisher has a certain type.
+   */
+  template <typename T>
+  bool isType() const {
+    const T *t = dynamic_cast<const T *>(this);
+    return t != nullptr;
+  }
 
-    /**
-     * Helper method for casting providers.
-     */
-    template<typename T>
-    T & as()
-    {
-        return dynamic_cast<T&>(*this);
-    }
+  /**
+   * @brief Helper method for casting providers.
+   */
+  template <typename T>
+  T const &as() const {
+    return dynamic_cast<const T &>(*this);
+  }
 
-protected:
-    signal_t                    data_received_;
+  /**
+   * @brief Helper method for casting providers.
+   */
+  template <typename T>
+  T &as() {
+    return dynamic_cast<T &>(*this);
+  }
 
-    typename tf_provider_t::Ptr tf_;
-    ros::Duration               tf_timeout_;
+ protected:
+  signal_t data_received_;
 
-    virtual void doSetup(ros::NodeHandle &nh) = 0;
+  typename tf_provider_t::Ptr tf_;
+  ros::Duration tf_timeout_;
+
+  virtual void doSetup(ros::NodeHandle &nh) = 0;
 };
-}
+}  // namespace cslibs_plugins_data
 
-#endif // CSLIBS_PLUGINS_DATA_PROVIDER_HPP
+#endif  // CSLIBS_PLUGINS_DATA_PROVIDER_HPP

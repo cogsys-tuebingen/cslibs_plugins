@@ -4,7 +4,7 @@
 /// SYSTEM
 #include <tinyxml.h>
 
-#include <class_loader/multi_library_class_loader.h>
+#include <class_loader/multi_library_class_loader.hpp>
 #include <class_loader/class_loader.hpp>
 #include <cslibs_utility/common/delegate.hpp>
 #include <functional>
