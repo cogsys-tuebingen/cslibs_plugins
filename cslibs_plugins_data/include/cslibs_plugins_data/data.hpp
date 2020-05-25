@@ -12,10 +12,11 @@ class Data {
   using Ptr = std::shared_ptr<Data>;
   using ConstPtr = std::shared_ptr<const Data>;
 
-  Data(const std::string &_frame) : frame_{_frame} {}
+  inline Data(const std::string &_frame) : frame_{_frame} {}
 
-  Data(const std::string &frame, const cslibs_time::TimeFrame &time_frame,
-       const cslibs_time::Time &time_received)
+  inline Data(const std::string &frame,
+              const cslibs_time::TimeFrame &time_frame,
+              const cslibs_time::Time &time_received)
       : frame_{frame}, time_frame_{time_frame}, time_received_{time_received} {}
 
   virtual ~Data() = default;
