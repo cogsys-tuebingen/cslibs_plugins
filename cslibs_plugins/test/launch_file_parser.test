@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<launch>
+  <group ns="test_launch_file_parser">
+    <group ns="front_laser">
+      <param name="class" value="cslibs_plugins_data::LaserProvider" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+    <group ns="rear_laser">
+      <param name="class" value="cslibs_plugins_data::LaserProvider" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+    <group ns="beam_model_front">
+      <param name="class" value="muse_mcl_2d_gridmaps::BeamModelAMCL" />
+      <param name="base_class" value="muse_mcl_2d::UpdateModel2D" />
+    </group>
+    <group ns="beam_model_rear">
+      <param name="class" value="muse_mcl_2d_gridmaps::BeamModelAMCL" />
+      <param name="base_class" value="muse_mcl_2d::UpdateModel2D" />
+    </group>
+    <group ns="rawseeds">
+      <param name="class" value="muse_mcl_2d_gridmaps::BinaryGridmapProvider" />
+      <param name="base_class" value="muse_mcl_2d::MapProvider2D" />
+    </group>
+    <group ns="differential_drive_model">
+      <param name="class" value="muse_mcl_2d_odometry::DifferentialDrive" />
+      <param name="base_class" value="muse_mcl_2d::PredictionModel2D"/>
+    </group>
+    <group ns="odometry">
+      <param name="class" value="cslibs_plugins_data::Odometry2DProvider" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+    <group ns="resampling">
+      <param name="class" value="muse_mcl_2d::KLD2D" />
+      <param name="base_class" value="muse_mcl_2d::Resampling2D" />
+    </group>
+    <group ns="uniform_pose_generation">
+      <param name="class" value="muse_mcl_2d::UniformAllMaps2D" />
+      <param name="base_class" value="muse_mcl_2d::UniformSampling2D" />
+    </group>
+    <group ns="normal_pose_generation">
+      <param name="class" value="muse_mcl_2d::Normal2D" />
+      <param name="base_class" value="muse_mcl_2d::NormalSampling2D" />
+    </group>
+
+    <group ns="density">
+      <param name="class" value="muse_mcl_2d::SimpleSampleDensity2D" />
+      <param name="base_class" value="muse_mcl_2d::SampleDensity2D" />
+    </group>
+
+    <group ns="scheduler">
+      <param name="class" value="muse_mcl_2d::CFS" />
+      <param name="base_class" value="muse_mcl_2d::Scheduler2D" />
+    </group>
+  </group>
+
+  <test test-name="test_launch_file_parser" pkg="cslibs_plugins_data" type="test_load_plugins" />
+</launch>
