@@ -53,5 +53,5 @@
     </group>
   </group>
 
-  <test test-name="test_launch_file_parser" pkg="cslibs_plugins_data" type="test_load_plugins" />
+  <test test-name="test_launch_file_parser" pkg="cslibs_plugins" type="test_launch_file_parser" name="test_launch_file_parser" />
 </launch>

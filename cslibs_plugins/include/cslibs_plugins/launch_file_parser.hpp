@@ -23,11 +23,18 @@ class LaunchfileParser {
 
     std::string class_name;
     std::string name;
+
+    struct less {
+      inline bool operator()(const FoundPlugin &a, const FoundPlugin &b) const {
+        return a.name < b.name && a.class_name < b.class_name;
+      }
+    };
   };
 
+  using found_plugin_set_t = std::set<FoundPlugin, FoundPlugin::less>;
+
   template <typename plugin_t>
-  inline void getNamesForBaseClass(
-      std::vector<FoundPlugin> &found_plugins) const {
+  inline void getNamesForBaseClass(found_plugin_set_t &found_plugins) const {
     const std::string base_class_name = plugin_t::Type();
 
     if (plugins_.find(base_class_name) == plugins_.end()) {
@@ -39,7 +46,7 @@ class LaunchfileParser {
       const auto &class_name = class_entry.first;
       const auto &names = class_entry.second;
       for (const auto &name : names) {
-        found_plugins.emplace_back(class_name, name);
+        found_plugins.emplace(class_name, name);
       }
     }
   }
