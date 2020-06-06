@@ -80,7 +80,6 @@ class LaunchfileParser {
         const auto name = match[2];
         nh_private_.getParam(p, buffer[name].class_name);
       }
-
       if (std::regex_match(p.c_str(), match, base_class_regex)) {
         const auto name = match[2];
         nh_private_.getParam(p, buffer[name].base_class_name);

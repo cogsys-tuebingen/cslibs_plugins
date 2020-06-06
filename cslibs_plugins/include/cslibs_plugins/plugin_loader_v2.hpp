@@ -13,24 +13,22 @@
 namespace cslibs_plugins {
 class PluginLoaderV2 {
  public:
-  inline explicit PluginLoaderV2(const std::string &package_name)
+  inline explicit PluginLoaderV2(const std::string &package_name, ros::NodeHandle &nh)
       : package_name_{package_name},
-        launch_file_parser_{new LaunchfileParser{nh_private_}},
-        nh_private_{"~"} {}
+        launch_file_parser_{new LaunchfileParser{nh}} {}
 
-  template <typename plugin_t, typename... arguments_t>
-  inline bool load(std::map<std::string, typename plugin_t::Ptr> &plugins,
-                   const arguments_t &... arguments) {
+  template <typename plugin_t>
+  bool load(std::map<std::string, typename plugin_t::Ptr> &plugins) {
     plugins.clear();
-
-    // get plugin manager instance and the id counter
-    auto *plugin_manager = getInstance<plugin_t>();
-    auto &id = getId<plugin_t>();
 
     // get all plugins for this type
     const auto base_class_name = plugin_t::Type();
     LaunchfileParser::found_plugin_set_t found_plugins_for_type;
-    launch_file_parser_->getNamesForBaseClass<plugin_t>(found_plugins_for_type);
+    getNamesForBaseClass<plugin_t>(found_plugins_for_type);
+
+    // get plugin manager instance and the id counter
+    auto *plugin_manager = getInstance<plugin_t>();
+    auto &id = getId<plugin_t>();
 
     // create all plugins in list
     for (const auto &plugin_entry : found_plugins_for_type) {
@@ -39,11 +37,12 @@ class PluginLoaderV2 {
 
       auto constructor = plugin_manager->getConstructor(class_name);
       if (constructor) {
-        auto *p = constructor();
+        auto p = constructor();
         p->setName(name);
         p->setId(++id);
-        p->setup(arguments...);
-        plugins[name].reset(p);
+        // p->setup(arguments...);
+        plugins[name] = p;
+        std::cerr << "was here" << std::endl;
       } else {
         printError(name, class_name, base_class_name);
       }
@@ -52,9 +51,8 @@ class PluginLoaderV2 {
     return plugins.size() > 0;
   }
 
-  template <typename plugin_t, typename... arguments_t>
-  inline void load(typename plugin_t::Ptr &plugin,
-                   const arguments_t &... arguments) {
+  template <typename plugin_t>
+  void load(typename plugin_t::Ptr &plugin) {
     plugin.reset();
 
     auto *plugin_manager = getInstance<plugin_t>();
@@ -78,22 +76,37 @@ class PluginLoaderV2 {
       auto *p = constructor();
       p->setName(name);
       p->setId(++id);
-      p->setup(arguments...);
+    //   p->setup(arguments...);
       plugin.reset(p);
     } else {
       printError(name, class_name, base_class_name);
     }
   }
 
+  std::unique_ptr<LaunchfileParser> const &getLaunchFileParser() const {
+    return launch_file_parser_;
+  }
+
+  template<typename plugin_t>
+  void getNamesForBaseClass(LaunchfileParser::found_plugin_set_t &plugins)
+  {
+      launch_file_parser_->getNamesForBaseClass<plugin_t>(plugins);
+  }
+
  private:
   struct PluginManager {
     using Ptr = std::unique_ptr<PluginManager>;
+    virtual ~PluginManager() = default;
   };
 
   template <typename plugin_t>
   struct PluginManagerInstance : public PluginManager {
-    std::unique_ptr<cslibs_plugins::PluginManager<plugin_t>> instance_{
-        new cslibs_plugins::PluginManager<plugin_t>};
+    inline explicit PluginManagerInstance(const std::string &base_class_type,
+                                          const std::string &package_name)
+        : instance_{new cslibs_plugins::PluginManager<plugin_t>{
+              base_class_type, package_name}} {}
+
+    std::unique_ptr<cslibs_plugins::PluginManager<plugin_t>> instance_;
   };
 
   std::string package_name_;
@@ -108,13 +121,15 @@ class PluginLoaderV2 {
   template <typename plugin_t>
   cslibs_plugins::PluginManager<plugin_t> *getInstance() {
     PluginManagerInstance<plugin_t> *instance{nullptr};
-    const auto type_id_name = typeid(plugin_t).name();
-    if (plugin_managers_.find(type_id_name) == plugin_managers_.end()) {
-      instance = new PluginManagerInstance<plugin_t>;
-      plugin_managers_[type_id_name].reset(instance);
+    const auto base_class_name = plugin_t::Type();
+
+    if (plugin_managers_.find(base_class_name) == plugin_managers_.end()) {
+      instance =
+          new PluginManagerInstance<plugin_t>{base_class_name, package_name_};
+      plugin_managers_[base_class_name].reset(instance);
     } else {
-      auto &instance_entry = plugin_managers_[type_id_name];
-      instance = std::dynamic_pointer_cast<PluginManagerInstance<plugin_t>>(
+      auto &instance_entry = plugin_managers_[base_class_name];
+      instance = dynamic_cast<PluginManagerInstance<plugin_t>*>(
           instance_entry.get());
     }
     return instance->instance_.get();
@@ -126,11 +141,11 @@ class PluginLoaderV2 {
    */
   template <typename plugin_t>
   std::size_t &getId() {
-    const auto type_id_name = typeid(plugin_t).name();
-    if (plugin_ids_.find(type_id_name) == plugin_ids_.end()) {
-      plugin_ids_[type_id_name] = 0;
+    const auto base_class_name = plugin_t::Type();
+    if (plugin_ids_.find(base_class_name) == plugin_ids_.end()) {
+      plugin_ids_[base_class_name] = 0;
     }
-    return plugin_ids_[type_id_name];
+    return plugin_ids_[base_class_name];
   }
 
   /**
@@ -144,8 +159,6 @@ class PluginLoaderV2 {
               << io::color::bold(io::color::blue(base_class_name)) << ". \n  "
               << "Empty constructor received!." << std::endl;
   }
-
-  ros::NodeHandle nh_private_;
 };
 }  // namespace cslibs_plugins
 

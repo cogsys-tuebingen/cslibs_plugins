@@ -1,3 +1,57 @@
+<?xml version="1.0" ?>
 <launch>
-  <test test-name="test_load_plugins" pkg="cslibs_plugins_data" type="test_load_plugins" />
+  <group ns="test_load_plugins">
+    <group ns="laser">
+      <param name="class" value="cslibs_plugins_data::LaserProvider" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+    <group ns="laser_d">
+      <param name="class" value="cslibs_plugins_data::LaserProvider_d" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+    <group ns="laser_f">
+      <param name="class" value="cslibs_plugins_data::LaserProvider_f" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+
+    <group ns="odometry">
+      <param name="class" value="cslibs_plugins_data::Odometry2DProvider" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+    <group ns="odometry_d">
+      <param name="class" value="cslibs_plugins_data::Odometry2DProvider_d" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+    <group ns="odometry_f">
+      <param name="class" value="cslibs_plugins_data::Pointcloud3dProvider_f" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+
+    <group ns="odometry_tf">
+      <param name="class" value="cslibs_plugins_data::Odometry2DProviderTF" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+    <group ns="odometry_tf_d">
+      <param name="class" value="cslibs_plugins_data::Odometry2DProviderTF_d" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+    <group ns="odometry_tf_f">
+      <param name="class" value="cslibs_plugins_data::Odometry2DProviderTF_f" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+
+    <group ns="pointcloud">
+      <param name="class" value="cslibs_plugins_data::Pointcloud3dProvider" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+    <group ns="pointcloud_d">
+      <param name="class" value="cslibs_plugins_data::Pointcloud3dProvider_d" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+    <group ns="pointcloud_f">
+      <param name="class" value="cslibs_plugins_data::Pointcloud3dProvider_f" />
+      <param name="base_class" value="cslibs_plugins_data::DataProvider" />
+    </group>
+  </group>
+  <test test-name="test_load_plugins" pkg="cslibs_plugins_data" type="test_load_plugins" name="test_load_plugins" />
 </launch>
