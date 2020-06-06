@@ -4,6 +4,7 @@
 #include <cslibs_math_ros/tf/tf_listener.hpp>
 #include <cslibs_plugins/plugin_loader.hpp>
 #include <cslibs_plugins_data/data_provider.hpp>
+#include <cslibs_plugins/plugin_loader_v2.hpp>
 
 using data_provider_t = cslibs_plugins_data::DataProvider;
 using tf_listener_t = cslibs_math_ros::tf::TFListener;

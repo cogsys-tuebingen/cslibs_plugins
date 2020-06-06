@@ -1,5 +1,5 @@
-#ifndef CSLIBS_PLUGINS_PLUGIN_LOADER_HPP
-#define CSLIBS_PLUGINS_PLUGIN_LOADER_HPP
+#ifndef CSLIBS_PLUGINS_LAUNCH_FILE_PARSER_HPP
+#define CSLIBS_PLUGINS_LAUNCH_FILE_PARSER_HPP
 
 #include <ros/node_handle.h>
 
@@ -11,7 +11,7 @@
 namespace cslibs_plugins {
 class LaunchfileParser {
  public:
-  inline LaunchfileParser(const ros::NodeHandle &nh_private)
+  inline explicit LaunchfileParser(ros::NodeHandle &nh_private)
       : nh_private_{nh_private} {
     parseLaunchFile();
   }
@@ -57,7 +57,7 @@ class LaunchfileParser {
     std::string base_class_name;
   };
 
-  ros::NodeHandle nh_private_;
+  ros::NodeHandle& nh_private_;
   std::map<std::string, std::map<std::string, std::set<std::string>>> plugins_;
 
   inline void parseLaunchFile() {
@@ -97,4 +97,4 @@ class LaunchfileParser {
 };
 }  // namespace cslibs_plugins
 
-#endif  // CSLIBS_PLUGINS_PLUGIN_LOADER_HPP
+#endif  // CSLIBS_PLUGINS_LAUNCH_FILE_PARSER_HPP
