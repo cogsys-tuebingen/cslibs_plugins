@@ -42,7 +42,6 @@ class PluginLoaderV2 {
         p->setId(++id);
         p->setup(arguments...);
         plugins[name] = p;
-        std::cerr << "was here" << std::endl;
       } else {
         printError(name, class_name, base_class_name);
       }
