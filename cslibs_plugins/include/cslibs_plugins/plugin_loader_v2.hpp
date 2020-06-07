@@ -17,14 +17,14 @@ class PluginLoaderV2 {
       : package_name_{package_name},
         launch_file_parser_{new LaunchfileParser{nh}} {}
 
-  template <typename plugin_t>
-  bool load(std::map<std::string, typename plugin_t::Ptr> &plugins) {
+  template <typename plugin_t, typename... setup_args_t>
+  bool load(std::map<std::string, typename plugin_t::Ptr> &plugins, const setup_args_t &... arguments) {
     plugins.clear();
 
     // get all plugins for this type
     const auto base_class_name = plugin_t::Type();
     LaunchfileParser::found_plugin_set_t found_plugins_for_type;
-    getNamesForBaseClass<plugin_t>(found_plugins_for_type);
+    launch_file_parser_->getNamesForBaseClass<plugin_t>(found_plugins_for_type);
 
     // get plugin manager instance and the id counter
     auto *plugin_manager = getInstance<plugin_t>();
@@ -40,7 +40,7 @@ class PluginLoaderV2 {
         auto p = constructor();
         p->setName(name);
         p->setId(++id);
-        // p->setup(arguments...);
+        p->setup(arguments...);
         plugins[name] = p;
         std::cerr << "was here" << std::endl;
       } else {
@@ -51,8 +51,8 @@ class PluginLoaderV2 {
     return plugins.size() > 0;
   }
 
-  template <typename plugin_t>
-  void load(typename plugin_t::Ptr &plugin) {
+  template <typename plugin_t, typename... setup_args_t>
+  void load(typename plugin_t::Ptr &plugin, const setup_args_t &... arguments) {
     plugin.reset();
 
     auto *plugin_manager = getInstance<plugin_t>();
@@ -76,7 +76,7 @@ class PluginLoaderV2 {
       auto *p = constructor();
       p->setName(name);
       p->setId(++id);
-    //   p->setup(arguments...);
+      p->setup(arguments...);
       plugin.reset(p);
     } else {
       printError(name, class_name, base_class_name);
@@ -85,12 +85,6 @@ class PluginLoaderV2 {
 
   std::unique_ptr<LaunchfileParser> const &getLaunchFileParser() const {
     return launch_file_parser_;
-  }
-
-  template<typename plugin_t>
-  void getNamesForBaseClass(LaunchfileParser::found_plugin_set_t &plugins)
-  {
-      launch_file_parser_->getNamesForBaseClass<plugin_t>(plugins);
   }
 
  private:

@@ -62,11 +62,11 @@ TEST(Test_cslibs_plugins_data, testParseLaunchFile) {
   expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider_f",
                            "odometry_f");
 
-  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider",
+  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProviderTF",
                            "odometry_tf");
-  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider_d",
+  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProviderTF_d",
                            "odometry_tf_d");
-  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider_f",
+  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider_fTF",
                            "odometry_tf_f");
 
   expected_plugins.emplace("cslibs_plugins_data::Pointcloud3dProvider",
@@ -77,10 +77,6 @@ TEST(Test_cslibs_plugins_data, testParseLaunchFile) {
                            "pointcloud_f");
 
   EXPECT_EQ(expected_plugins.size(), plugins.size());
-
-  for(const auto &entry : plugins) {
-    std::cerr << entry.class_name << " " << entry.name << std::endl;
-  }
 
   for (auto plugin : plugins) {
     EXPECT_TRUE(expected_plugins.find(plugin) != expected_plugins.end());
@@ -93,9 +89,8 @@ TEST(Test_cslibs_plugins_data, testPluginLoaderV2) {
   cslibs_plugins::PluginLoaderV2 loader("cslibs_plugins_data", nh);
 
   cslibs_plugins::LaunchfileParser::found_plugin_set_t plugins;
-  // const auto &parser = loader.getLaunchFileParser();
-  // parser->getNamesForBaseClass<cslibs_plugins_data::DataProvider>(plugins);
-  loader.getNamesForBaseClass<cslibs_plugins_data::DataProvider>(plugins);
+  const auto &parser = loader.getLaunchFileParser();
+  parser->getNamesForBaseClass<cslibs_plugins_data::DataProvider>(plugins);
 
   cslibs_plugins::LaunchfileParser::found_plugin_set_t expected_plugins;
   expected_plugins.emplace("cslibs_plugins_data::LaserProvider", "laser");
@@ -129,7 +124,7 @@ TEST(Test_cslibs_plugins_data, testPluginLoaderV2) {
   }
 
   std::map<std::string, cslibs_plugins_data::DataProvider::Ptr> loaded_plugins;
-  loader.load<cslibs_plugins_data::DataProvider>(loaded_plugins);
+  loader.load<cslibs_plugins_data::DataProvider, decltype(tf_), decltype(nh)&>(loaded_plugins, tf_, nh);
 
   // EXPECT_EQ(loaded_plugins.size(), 12ul);
 
