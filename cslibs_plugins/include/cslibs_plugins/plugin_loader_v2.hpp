@@ -13,12 +13,14 @@
 namespace cslibs_plugins {
 class PluginLoaderV2 {
  public:
-  inline explicit PluginLoaderV2(const std::string &package_name, ros::NodeHandle &nh)
+  inline explicit PluginLoaderV2(const std::string &package_name,
+                                 ros::NodeHandle &nh)
       : package_name_{package_name},
         launch_file_parser_{new LaunchfileParser{nh}} {}
 
   template <typename plugin_t, typename... setup_args_t>
-  bool load(std::map<std::string, typename plugin_t::Ptr> &plugins, const setup_args_t &... arguments) {
+  bool load(std::map<std::string, typename plugin_t::Ptr> &plugins,
+            const setup_args_t &... arguments) {
     plugins.clear();
 
     // get all plugins for this type
@@ -96,8 +98,10 @@ class PluginLoaderV2 {
   struct PluginManagerInstance : public PluginManager {
     inline explicit PluginManagerInstance(const std::string &base_class_type,
                                           const std::string &package_name)
-        : instance_{new cslibs_plugins::PluginManager<plugin_t>{
-              base_class_type, package_name}} {}
+        : instance_{new cslibs_plugins::PluginManager<plugin_t>{base_class_type,
+                                                                package_name}} {
+      instance_->load();
+    }
 
     std::unique_ptr<cslibs_plugins::PluginManager<plugin_t>> instance_;
   };
@@ -122,8 +126,8 @@ class PluginLoaderV2 {
       plugin_managers_[base_class_name].reset(instance);
     } else {
       auto &instance_entry = plugin_managers_[base_class_name];
-      instance = dynamic_cast<PluginManagerInstance<plugin_t>*>(
-          instance_entry.get());
+      instance =
+          dynamic_cast<PluginManagerInstance<plugin_t> *>(instance_entry.get());
     }
     return instance->instance_.get();
   }

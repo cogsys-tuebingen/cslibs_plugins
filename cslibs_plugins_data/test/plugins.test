@@ -23,7 +23,7 @@
       <param name="base_class" value="cslibs_plugins_data::DataProvider" />
     </group>
     <group ns="odometry_f">
-      <param name="class" value="cslibs_plugins_data::Pointcloud3dProvider_f" />
+      <param name="class" value="cslibs_plugins_data::Odometry2DProvider_f" />
       <param name="base_class" value="cslibs_plugins_data::DataProvider" />
     </group>
 

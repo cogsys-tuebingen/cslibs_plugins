@@ -52,32 +52,40 @@ TEST(Test_cslibs_plugins_data, testParseLaunchFile) {
 
   cslibs_plugins::LaunchfileParser::found_plugin_set_t expected_plugins;
   expected_plugins.emplace("cslibs_plugins_data::LaserProvider", "laser");
+  EXPECT_EQ(1ul, expected_plugins.size());
   expected_plugins.emplace("cslibs_plugins_data::LaserProvider_d", "laser_d");
+  EXPECT_EQ(2ul, expected_plugins.size());
   expected_plugins.emplace("cslibs_plugins_data::LaserProvider_f", "laser_f");
-
+  EXPECT_EQ(3ul, expected_plugins.size());
   expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider",
                            "odometry");
+  EXPECT_EQ(4ul, expected_plugins.size());
   expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider_d",
                            "odometry_d");
+  EXPECT_EQ(5ul, expected_plugins.size());
   expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider_f",
                            "odometry_f");
-
+  EXPECT_EQ(6ul, expected_plugins.size());
   expected_plugins.emplace("cslibs_plugins_data::Odometry2DProviderTF",
                            "odometry_tf");
+  EXPECT_EQ(7ul, expected_plugins.size());
   expected_plugins.emplace("cslibs_plugins_data::Odometry2DProviderTF_d",
                            "odometry_tf_d");
-  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider_fTF",
+  EXPECT_EQ(8ul, expected_plugins.size());
+  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProviderTF_f",
                            "odometry_tf_f");
-
+  EXPECT_EQ(9ul, expected_plugins.size());
   expected_plugins.emplace("cslibs_plugins_data::Pointcloud3dProvider",
                            "pointcloud");
+  EXPECT_EQ(10ul, expected_plugins.size());
   expected_plugins.emplace("cslibs_plugins_data::Pointcloud3dProvider_d",
                            "pointcloud_d");
+  EXPECT_EQ(11ul, expected_plugins.size());
   expected_plugins.emplace("cslibs_plugins_data::Pointcloud3dProvider_f",
                            "pointcloud_f");
+  EXPECT_EQ(12ul, expected_plugins.size());
 
   EXPECT_EQ(expected_plugins.size(), plugins.size());
-
   for (auto plugin : plugins) {
     EXPECT_TRUE(expected_plugins.find(plugin) != expected_plugins.end());
   }
@@ -85,7 +93,7 @@ TEST(Test_cslibs_plugins_data, testParseLaunchFile) {
 
 TEST(Test_cslibs_plugins_data, testPluginLoaderV2) {
   ros::NodeHandle nh{"~"};
-  cslibs_math_ros::tf::TFProvider::Ptr tf_;
+  cslibs_math_ros::tf::TFProvider::Ptr tf_{new cslibs_math_ros::tf::TFListener};
   cslibs_plugins::PluginLoaderV2 loader("cslibs_plugins_data", nh);
 
   cslibs_plugins::LaunchfileParser::found_plugin_set_t plugins;
@@ -104,11 +112,11 @@ TEST(Test_cslibs_plugins_data, testPluginLoaderV2) {
   expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider_f",
                            "odometry_f");
 
-  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider",
+  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProviderTF",
                            "odometry_tf");
-  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider_d",
+  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProviderTF_d",
                            "odometry_tf_d");
-  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProvider_f",
+  expected_plugins.emplace("cslibs_plugins_data::Odometry2DProviderTF_f",
                            "odometry_tf_f");
 
   expected_plugins.emplace("cslibs_plugins_data::Pointcloud3dProvider",
@@ -125,9 +133,7 @@ TEST(Test_cslibs_plugins_data, testPluginLoaderV2) {
 
   std::map<std::string, cslibs_plugins_data::DataProvider::Ptr> loaded_plugins;
   loader.load<cslibs_plugins_data::DataProvider, decltype(tf_), decltype(nh)&>(loaded_plugins, tf_, nh);
-
-  // EXPECT_EQ(loaded_plugins.size(), 12ul);
-
+  EXPECT_EQ(12ul, loaded_plugins.size());
 }
 
 int main(int argc, char *argv[]) {

@@ -26,7 +26,7 @@ class LaunchfileParser {
 
     struct less {
       inline bool operator()(const FoundPlugin &a, const FoundPlugin &b) const {
-        return a.name < b.name && a.class_name < b.class_name;
+        return a.class_name + a.name < b.class_name + b.name;
       }
     };
   };
