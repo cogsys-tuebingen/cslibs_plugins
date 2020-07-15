@@ -74,11 +74,11 @@ class PluginLoaderV2 {
     const auto &class_name = plugin_entry.class_name;
     auto constructor = plugin_manager->getConstructor(class_name);
     if (constructor) {
-      auto *p = constructor();
+      auto p = constructor();
       p->setName(name);
       p->setId(++id);
       p->setup(arguments...);
-      plugin.reset(p);
+      plugin = p;
     } else {
       printError(name, class_name, base_class_name);
     }
